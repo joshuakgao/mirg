@@ -1,32 +1,37 @@
-import requests
-from PIL import Image
-
 from gemini import Gemini
 from muMuQA import MuMuQA
 from muRag import muRag
+from utils.image import download_image
+import os
+
+# fixes a faiss error. See: https://stackoverflow.com/questions/53014306/error-15-initializing-libiomp5-dylib-but-found-libiomp5-dylib-already-initial
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 muMuQA = MuMuQA() # init db
+gemini = Gemini() # init Gemini LLM
 
-# run MuRag on query image and images in database
-query_image_url = "https://imagez.tmz.com/image/b1/4by3/2012/01/20/b1b4990ab1b650fc8082838df4e5d75a_xl.jpg"
-db_image_urls = muMuQA.get_image_urls()
-top_k_indexes = muRag(query_image_url, db_image_urls)
+while True:
+    # query Gemini
+    query_text = input("\nText input: ")
+    query_image_url = input("Query image url: ")
 
-# build context from MuRAG
-docs = muMuQA.get_examples_by_indexes(top_k_indexes)
-context = "Conscisely answer the question by inferring an answer from the following knowledge: \n\n"
-for doc in docs:
-    context += doc['context'] + " " + doc['caption'] + "\n"
+    # run MuRag on query image and images in database
+    query_image = download_image(query_image_url)
+    top_k_indexes = muRag(query_image, query_text, muMuQA.faiss_index)
+    print(top_k_indexes)
 
-# query Gemini
-gemini = Gemini()
-query_text = "Who did the person in this image help and how did he help?"
-query_image = Image.open(requests.get(query_image_url, stream=True).raw)
+    # build context from MuRAG
+    docs = muMuQA.get_examples_by_indexes(top_k_indexes)
+    context = ""
+    for doc in docs:
+        context += doc['context'] + ". " + doc['caption'] + "\n"
 
-# without MuRAG
-response = gemini.query([query_text, query_image])
-print(f"\n{response}\n")
+    print(context)
 
-# with MuRAG
-response = gemini.query([context, query_text, query_image])
-print(f"{response}\n")
+    # query Gemini without MuRAG
+    response = gemini.query([query_text, query_image])
+    print(f"\n{response}\n")
+
+    # query Gemini with MuRAG
+    response = gemini.query([context, query_text, query_image])
+    print(f"{response}\n")

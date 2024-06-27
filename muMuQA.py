@@ -6,6 +6,7 @@ from logger import Logger
 import faiss
 import numpy as np
 
+
 clip = Clip()
 logger = Logger()
 
@@ -20,18 +21,20 @@ class MuMuQA():
         self.test = json.loads(open(test_path, 'r').read())
 
         # pre-embed dataset if not already embedded
-        # self.train = self._pre_encode_split_until_done(self.train, train_path)
+        self.train = self._pre_encode_split_until_done(self.train, train_path)
         self.dev = self._pre_encode_split_until_done(self.dev, dev_path)
-        # self.test = self._pre_encode_split_until_done(self.test, test_path)
+        self.test = self._pre_encode_split_until_done(self.test, test_path)
 
         # store embeddings into faiss index
-        embeddings = np.array([np.concatenate((doc["image_embedding"], doc["text_embedding"])) for doc in self.dev])
-        print(embeddings)
+        embeddings = np.array([np.concatenate((doc["image_embedding"], doc["text_embedding"])) for doc in self.dev]) # concat image with text embedding
         self.faiss_index = faiss.IndexFlatIP(embeddings.shape[1]) # provide faiss index with dimension
-        self.faiss_index.add(embeddings)
+        self.faiss_index.add(embeddings) # store embeddings
     
 
     def _pre_encode_split_until_done(self, split, path):
+        """
+        Pre-encode text and images in dataset until all examples are encoded, even through errors.
+        """
         indexes = self._get_non_pre_encoded_indexes(split)
         while len(indexes) != 0:
             split = self._pre_encode_split(split, path, indexes)
@@ -40,6 +43,9 @@ class MuMuQA():
 
 
     def _get_non_pre_encoded_indexes(self, split):
+        """
+        This checks to see if a split is fully embedded by check if all dicts in array have the "image_embedding" and "text_embedding" key
+        """
         return [index for index, d in enumerate(split) if "image_embedding" not in d and "text_embedding" not in d]
 
     
@@ -47,7 +53,6 @@ class MuMuQA():
         """
         Pre encode text and images in dataset of indexes parameter
         """
-
         # if split is entirely encoded, return
         if len(indexes) == 0:
             return
@@ -70,8 +75,8 @@ class MuMuQA():
             except Exception as e:
                 logger.log(f"Error with doc {i} in {file_name}: {e}\n")
 
-            # save progress every 1000 steps
-            if i % 1000 == 0:
+            # save progress every 500 steps
+            if i % 500 == 0:
                 self._save_split_to_file(split, path)
 
         # final save
@@ -85,7 +90,10 @@ class MuMuQA():
 
 
     def get_examples_by_indexes(self, indexes):
-        return [self.train[i] for i in indexes]
+        """
+        Fetches examples from dataset by index
+        """
+        return [self.dev[i] for i in indexes]
 
 
 if __name__ == "__main__":
