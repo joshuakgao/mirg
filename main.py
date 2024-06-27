@@ -22,16 +22,16 @@ while True:
 
     # build context from MuRAG
     docs = muMuQA.get_examples_by_indexes(top_k_indexes)
-    context = ""
+    context = "The following are mulitple documents that could be related to the question:\n\n"
     for doc in docs:
-        context += doc['context'] + ". " + doc['caption'] + "\n"
+        context += doc['context'] + ". " + doc['caption'] + "\n\n"
 
     print(context)
 
     # query Gemini without MuRAG
     response = gemini.query([query_text, query_image])
-    print(f"\n{response}\n")
+    print(f"\nNO MURAG:\n{response}\n")
 
     # query Gemini with MuRAG
     response = gemini.query([context, query_text, query_image])
-    print(f"{response}\n")
+    print(f"WITH MURAG:\n{response}\n")

@@ -26,7 +26,7 @@ class MuMuQA():
         self.test = self._pre_encode_split_until_done(self.test, test_path)
 
         # store embeddings into faiss index
-        embeddings = np.array([np.concatenate((doc["image_embedding"], doc["text_embedding"])) for doc in self.dev]) # concat image with text embedding
+        embeddings = np.array([np.concatenate((doc["image_embedding"], doc["text_embedding"])) for doc in self.test]) # concat image with text embedding
         self.faiss_index = faiss.IndexFlatIP(embeddings.shape[1]) # provide faiss index with dimension
         self.faiss_index.add(embeddings) # store embeddings
     
@@ -93,7 +93,7 @@ class MuMuQA():
         """
         Fetches examples from dataset by index
         """
-        return [self.dev[i] for i in indexes]
+        return [self.test[i] for i in indexes]
 
 
 if __name__ == "__main__":

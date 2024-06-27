@@ -3,7 +3,7 @@ import os
 
 class Gemini():
     def __init__(self):
-        genai.configure(api_key=os.environ['GEMINI_KEY'])
+        genai.configure(api_key=open("gemini_key.txt").read())
         self.model = genai.GenerativeModel(model_name='gemini-1.5-flash')
 
     def query(self, query):
