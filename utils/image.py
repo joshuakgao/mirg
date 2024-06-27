@@ -1,16 +1,7 @@
-from PIL import Image, UnidentifiedImageError
 import io
 import requests
-import numpy as np
+from PIL import Image, UnidentifiedImageError
 
-async def download_image_async(session, url):
-    async with session.get(url) as response:
-        if response.status == 200:
-            image_data = await response.read()
-            return Image.open(io.BytesIO(image_data))
-        else:
-            # Handle unsuccessful download (raise exception, log error, etc.)
-            raise Exception(f"Failed to download image from {url}")
 
 def download_image(url):
     try:

@@ -1,11 +1,18 @@
 import os
 from datetime import datetime
+import sys
+
+# for importing
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 class Logger:
     def __init__(self, log_path="logs/logs.txt"):
         self.log_path = log_path
         self._ensure_log_directory_exists()
-        self.log("================================================") # add line break on every run
+        self.log("================================================\n") # add line break on every run
+
+        # for importing
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
     def _ensure_log_directory_exists(self):
         # Get the directory from the log path
@@ -19,4 +26,4 @@ class Logger:
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_message = f"[{current_time}] {message}"
         with open(self.log_path, 'a') as log_file:
-            log_file.write(log_message + "\n")
+            log_file.write(log_message)

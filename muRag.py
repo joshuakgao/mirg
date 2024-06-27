@@ -1,8 +1,9 @@
-from clip import Clip
 import numpy as np
+from ml_models.clip import Clip
 
 
 clip = Clip()
+
 
 def muRag(query_image, query_text, faiss_index, k=3):
     # get image and text embeddings

@@ -1,17 +1,14 @@
-from gemini import Gemini
-from muMuQA import MuMuQA
+from dataparsers.muMuQA import MuMuQA
+from ml_models.gemini import Gemini
 from muRag import muRag
 from utils.image import download_image
-import os
 
-# fixes a faiss error. See: https://stackoverflow.com/questions/53014306/error-15-initializing-libiomp5-dylib-but-found-libiomp5-dylib-already-initial
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 muMuQA = MuMuQA() # init db
 gemini = Gemini() # init Gemini LLM
 
 while True:
-    # query Gemini
+    # get query from user
     query_text = input("\nText input: ")
     query_image_url = input("Query image url: ")
 

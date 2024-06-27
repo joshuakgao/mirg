@@ -1,5 +1,6 @@
 __pycache__/
-data/*
+datasets/muMuQA/*.json
+datasets/webQA/*.json
 .DS_Store
-logs/
+logs/*
 gemini_key.txt

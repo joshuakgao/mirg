@@ -4,20 +4,22 @@ import numpy as np
 
 class Clip:
     def __init__(self, model_id="B-32"):
-        model, prepocess, tokenizer = self._select_clip_model(model_id)
+        model, preporcess, tokenizer = self._select_clip_model(model_id)
         self.model = model
-        self.preprocess = prepocess
+        self.preprocess = preporcess
         self.tokenizer = tokenizer
 
 
     def _select_clip_model(self, model_id):
+        """
+        Return clip encoder and 
+        """
         model_ids = {
-            "B-32": 'hf-hub:laion/CLIP-ViT-B-32-laion2B-s34B-b79K',
+            "B-32": 'hf-hub:laion/CLIP-ViT-B-32-laion2B-s34B-b79K', # smallest clip model
             "L-14": 'hf-hub:laion/CLIP-ViT-L-14-laion2B-s32B-b82K',
             "H-14": 'hf-hub:laion/CLIP-ViT-H-14-laion2B-s32B-b79K',
-            "G-14": 'hf-hub:laion/CLIP-ViT-g-14-laion2B-s12B-b42K',
+            "G-14": 'hf-hub:laion/CLIP-ViT-g-14-laion2B-s12B-b42K', # largest clip model
         }
-        
         model_id = model_ids[model_id]
         model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms(model_id)
         tokenizer = open_clip.get_tokenizer(model_id)
@@ -26,6 +28,9 @@ class Clip:
 
 
     def encode(self, images=[], text=[]):
+        """
+        Encode list of images and list of text with clip
+        """
         images = [self.preprocess(image) for image in images]
 
         images_input = torch.tensor(np.stack(images))
