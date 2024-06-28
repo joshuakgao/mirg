@@ -21,7 +21,6 @@ class MuMuQA():
     def __init__(self):
         # load raw data
         train_path = os.path.join(DATASETS_DIR, "muMuQA/train.json")
-        print(train_path)
         dev_path = os.path.join(DATASETS_DIR, "muMuQA/dev.json")
         test_path = os.path.join(DATASETS_DIR, "muMuQA/test.json")
         self.train = json.loads(open(train_path, 'r').read())
