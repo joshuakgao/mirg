@@ -28,7 +28,11 @@ class MuMuQA():
         self.test = json.loads(open(test_path, 'r').read())
 
         # store embeddings into faiss index
-        embeddings = np.array([np.concatenate((doc["image_embedding"], doc["text_embedding"])) for doc in self.train]) # concat image with text embedding
+        embeddings = np.array([
+            np.concatenate((doc["image_embedding"], doc["text_embedding"]))
+            for doc in self.train
+            if "image_embedding" in doc and "text_embedding" in doc
+        ]) # concat image with text embedding
         self.faiss_index = faiss.IndexFlatIP(embeddings.shape[1]) # provide faiss index with dimension
         self.faiss_index.add(embeddings) # store embeddings
 
