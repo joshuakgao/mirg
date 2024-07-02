@@ -1,6 +1,17 @@
+# Python cache files
 __pycache__/
-datasets/muMuQA/*.json
-datasets/webQA/*.json
+
+# macOS system files
 .DS_Store
+
+# Log files
 logs/*
+
+# Sensitive information
 gemini_key.txt
+
+# Dataset files
+datasets/muMuQA/data/*.json
+datasets/webQA/data/*.json
+datasets/inspectionReports/data/*.pdf
+datasets/inspectionReports/data/*.md

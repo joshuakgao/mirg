@@ -5,3 +5,5 @@ requests
 Pillow
 open_clip_torch
 torch
+langchain-community
+pymupdf
