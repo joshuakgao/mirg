@@ -13,5 +13,4 @@ gemini_key.txt
 # Dataset files
 datasets/muMuQA/data/*.json
 datasets/webQA/data/*.json
-datasets/inspectionReports/data/*.pdf
-datasets/inspectionReports/data/*.md
+datasets/inspectionReports/data/*
