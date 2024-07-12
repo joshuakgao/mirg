@@ -101,13 +101,13 @@ def resize_pil(img):
 # combine the foreground (mask_all) and background (original image) to create one image
 
 
-def transparent(fg, bg, alpha_factor):
+def transparent(foreground, background, alpha_factor):
 
-    foreground = np.array(fg)
-    background = np.array(bg)
+    foreground = np.array(foreground)
+    background = np.array(background)
 
-    background = Image.fromarray(bg)
-    foreground = Image.fromarray(fg)
+    background = Image.fromarray(background)
+    foreground = Image.fromarray(foreground)
     new_alpha_factor = int(255 * alpha_factor)
     foreground.putalpha(new_alpha_factor)
     background.paste(foreground, (0, 0), foreground)
@@ -194,10 +194,8 @@ def inference(img, alpha_factor):
         plt.savefig(img_buf, bbox_inches="tight", pad_inches=0, format="png")
         all_images.append(Image.open(img_buf))
 
-    # Create image with all masks layered on background
-    foreground = all_images[0]
-    foreground.putalpha(100)
-    composite = Image.alpha_composite(background, foreground)
+    # create image with all masks overlayed on original image
+    composite = transparent(all_images[0], background, alpha_factor)
 
     return im, all_images, background, composite
 
