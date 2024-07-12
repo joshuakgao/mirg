@@ -1,11 +1,11 @@
 from dataparsers.muMuQA import MuMuQA
 from ml_models.gemini import Gemini
-from muRag import muRag
-from utils.image import download_image
+from utils.media.image import download_image
+from utils.mu_rag import muRag
 
 
-muMuQA = MuMuQA() # init db
-gemini = Gemini() # init Gemini LLM
+muMuQA = MuMuQA()  # init db
+gemini = Gemini()  # init Gemini LLM
 
 while True:
     # get query from user
@@ -21,7 +21,7 @@ while True:
     docs = muMuQA.get_examples_by_indexes(top_k_indexes)
     context = "The following are mulitple documents that could be related to the question:\n\n"
     for doc in docs:
-        context += doc['context'] + ". " + doc['caption'] + "\n\n"
+        context += doc["context"] + ". " + doc["caption"] + "\n\n"
 
     print(context)
 
