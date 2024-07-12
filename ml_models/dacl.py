@@ -63,7 +63,7 @@ class SegModel(nn.Module):
 
 
 model = SegModel(segformer)
-path = "/Users/joshuagao/Documents/GitHub/UH/mu-rag/ml_models/model_weights/dacl.pth"
+path = ROOT_DIR + "/ml_models/model_weights/dacl.pth"
 print(f"Load Segformer weights from {path}")
 # model = model.load_state_dict(torch.load(path, map_location=device))
 model = torch.load(path)
