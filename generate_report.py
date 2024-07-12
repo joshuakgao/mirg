@@ -13,7 +13,7 @@ gemini = Gemini()
 
 print("Getting report images...")
 IMAGES_DIR = (
-    DATASETS_DIR + "/inspectionReports/data/14-246-AA03-51-003_FCReport_2023-06/images"
+    DATASETS_DIR + "/inspection_reports/data/14-246-AA03-51-003_FCReport_2023-06/images"
 )
 
 images = []

@@ -13,7 +13,7 @@ gemini_key.txt
 # Dataset files
 datasets/muMuQA/data/*.json
 datasets/webQA/data/*.json
-datasets/inspectionReports/data/*
+datasets/inspection_reports/data/*
 
 # model weights
 ml_models/model_weights/*

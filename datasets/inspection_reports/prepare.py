@@ -8,7 +8,7 @@ from paths import DATASETS_DIR
 from utils.media.pdf import convert_pdf_to_md
 
 if __name__ == "__main__":
-    DATA_DIR = os.path.join(DATASETS_DIR, "inspectionReports/data")
+    DATA_DIR = os.path.join(DATASETS_DIR, "inspection_reports/data")
 
     for file_name in os.listdir(DATA_DIR):
         # ignore non-pdf files
@@ -16,4 +16,4 @@ if __name__ == "__main__":
             continue
 
         file_path = os.path.join(DATA_DIR, file_name)
-        report_dir = convert_pdf_to_md(file_path)
+        report_dir = convert_pdf_to_md(file_path, paginate=True)
