@@ -4,6 +4,8 @@ import numpy as np
 import open_clip
 import torch
 from PIL import Image
+from typing import List
+
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -49,6 +51,19 @@ class Clip:
             text_features = self.model.encode_text(text_input)
         return images_features, text_features
 
+    def image_classification(self, image: Image.Image, classes: List[str]):
+        image = self.preprocess(image).unsqueeze(0)
+        classes = self.tokenizer(classes)
+
+        image_features = self.model.encode_image(image)
+        text_features = self.model.encode_text(classes)
+
+        image_features /= image_features.norm(dim=-1, keepdim=True)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+
+        text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+        return text_probs[0]
+
 
 if __name__ == "__main__":
     clip = Clip()
@@ -58,3 +73,5 @@ if __name__ == "__main__":
     )
     print(images_features)  # list of 512x1 vectors
     print(text_features)  # list of 512x1 vectors
+
+    clip.image_classification(img, ["reality", "document"])

@@ -15,10 +15,9 @@ class Llava:
         self.v = verbose
         self.model = model
 
-        if self.v:
-            print(
-                f"Pulling {model} model. This may take a while if not already downloaded..."
-            )
+        print(
+            f"Pulling {model} model. This may take a while if not already downloaded..."
+        )
         ollama.pull(model=model)  # download model if not already downloaded
 
     def query(self, messages: Sequence[Message]):

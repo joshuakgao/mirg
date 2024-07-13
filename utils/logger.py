@@ -23,10 +23,14 @@ class Logger:
             os.makedirs(log_dir)
 
     def log(self, message):
+        print(message)
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_message = f"[{current_time}] {message}"
         with open(self.log_path, "a") as log_file:
-            log_file.write(log_message)
+            log_file.write(log_message + "\n")
+
+
+logger = Logger()
 
 
 if __name__ == "__main__":

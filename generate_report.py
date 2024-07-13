@@ -33,3 +33,4 @@ response = gemini.query([instructions] + images)
 
 f = open("generated_inspection_report.md", "w+")
 f.write(response)
+f.close()

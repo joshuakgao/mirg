@@ -20,7 +20,7 @@ def download_image(url):
     return None
 
 
-def save_base64_image(base64_str, output_dir, img_format="jpeg"):
+def save_base64_image(base64_str, output_dir, image_format="jpeg"):
     # Ensure output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -29,7 +29,7 @@ def save_base64_image(base64_str, output_dir, img_format="jpeg"):
     image_data = base64.b64decode(base64_str)
 
     # Generate a unique filename
-    img_filename = f"image_{hash(base64_str)}.{img_format}"
+    img_filename = f"image_{hash(base64_str)}.{image_format}"
     img_path = os.path.join(output_dir, img_filename)
 
     # Save the image to the file
