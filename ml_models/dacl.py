@@ -4,52 +4,18 @@ import os
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
+from matplotlib import colors
 from PIL import Image
 from torch import nn
 from torchvision import transforms
 from transformers import SegformerForSemanticSegmentation
+from typing import List
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
 from paths import ROOT_DIR
-
-###################
-# Setup label names
-target_list = [
-    "Crack",
-    "ACrack",
-    "Wetspot",
-    "Efflorescence",
-    "Rust",
-    "Rockpocket",
-    "Hollowareas",
-    "Cavity",
-    "Spalling",
-    "Graffiti",
-    "Weathering",
-    "Restformwork",
-    "ExposedRebars",
-    "Bearing",
-    "EJoint",
-    "Drainage",
-    "PEquipment",
-    "JTape",
-    "WConccor",
-]
-target_list_all = ["All"] + target_list
-classes, nclasses = target_list, len(target_list)
-label2id = dict(zip(classes, range(nclasses)))
-id2label = dict(zip(range(nclasses), classes))
-
-############
-# Load model
-device = torch.device("cpu")
-segformer = SegformerForSemanticSegmentation.from_pretrained(
-    "nvidia/mit-b1", id2label=id2label, label2id=label2id
-)
-
-# SegModel
+from utils.device_detector import detect_device
 
 
 class SegModel(nn.Module):
@@ -62,147 +28,174 @@ class SegModel(nn.Module):
         return self.upsample(self.segformer(x).logits)
 
 
-model = SegModel(segformer)
-path = ROOT_DIR + "/ml_models/model_weights/dacl.pth"
-print(f"Load Segformer weights from {path}")
-# model = model.load_state_dict(torch.load(path, map_location=device))
-model = torch.load(path)
-model.eval()
+class Dacl:
+    def __init__(self):
+        self.classes, self.label2id, self.id2label = self._define_classes()
+        self.transforms = self._define_transforms()
+        # self.device = detect_device()
+        model_path = ROOT_DIR + "/ml_models/model_weights/dacl.pth"
+        self.model = self._load_model(model_path)
 
-##################
-# Image preprocess
-##################
+    def _define_classes(self):
+        classes = [
+            "Crack",
+            "ACrack",
+            "Wetspot",
+            "Efflorescence",
+            "Rust",
+            "Rockpocket",
+            "Hollowareas",
+            "Cavity",
+            "Spalling",
+            "Graffiti",
+            "Weathering",
+            "Restformwork",
+            "ExposedRebars",
+            "Bearing",
+            "EJoint",
+            "Drainage",
+            "PEquipment",
+            "JTape",
+            "WConccor",
+        ]
+        nclasses = len(classes)
+        label2id = dict(zip(classes, range(nclasses)))
+        id2label = dict(zip(range(nclasses), classes))
 
-to_tensor = transforms.ToTensor()
-to_array = transforms.ToPILImage()
-resize = transforms.Resize((512, 512))
-resize_small = transforms.Resize((369, 369))
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        return classes, label2id, id2label
 
+    def _define_transforms(self):
+        """
+        Used to preprocess images
+        """
+        self.to_tensor = transforms.ToTensor()
+        self.to_array = transforms.ToPILImage()
+        self.resize = transforms.Resize((512, 512))
+        self.resize_small = transforms.Resize((369, 369))
+        self.normalize = transforms.Normalize(
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        )
+        return {
+            "to_tensor": transforms.ToTensor(),
+            "to_array": transforms.ToPILImage(),
+            "resize": transforms.Resize((512, 512)),
+            "resize_small": transforms.Resize((369, 369)),
+            "normalize": transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            ),
+        }
 
-def process_pil(img):
-    img = to_tensor(img)
-    img = resize(img)
-    img = normalize(img)
-    return img
+    def _load_model(self, model_path):
+        print(f"Loading Dacl weights from {model_path}")
+        segformer = SegformerForSemanticSegmentation.from_pretrained(
+            "nvidia/mit-b1", id2label=self.id2label, label2id=self.label2id
+        )
+        model = SegModel(segformer)
+        model = torch.load(model_path)
+        model.eval()
+        return model
 
+    def _preprocess_image(self, img: Image.Image):
+        img = self.to_tensor(img)
+        img = self.resize(img)
+        img = self.normalize(img)
+        return img
 
-# the background of the image
+    def _resize_image(self, img: Image.Image) -> Image.Image:
+        """
+        Used to resize the original background image to the model output size
+        """
+        img = self.to_tensor(img)
+        img = self.resize_small(img)
+        img = self.to_array(img)
+        img = img.convert("RGBA")
+        return img
 
+    def _create_composite_image(self, foreground, background, alpha_factor):
+        """
+        Combine the foreground (mask_all) and background (original image) to create one image
+        """
+        foreground = np.array(foreground)
+        background = np.array(background)
 
-def resize_pil(img):
-    img = to_tensor(img)
-    img = resize_small(img)
-    img = to_array(img)
-    img = img.convert("RGBA")
-    return img
+        background = Image.fromarray(background)
+        foreground = Image.fromarray(foreground)
+        new_alpha_factor = int(255 * alpha_factor)
+        foreground.putalpha(new_alpha_factor)
+        background.paste(foreground, (0, 0), foreground)
 
+        return background
 
-# combine the foreground (mask_all) and background (original image) to create one image
+    def inference(self, image: Image.Image, confidence=0.5, alpha_factor=0.1):
+        # preprocess images
+        background = self._resize_image(image)
+        image = self._preprocess_image(image)
 
+        # we need a batch, hence we introduce an extra dimenation at position 0 (unsqueeze)
+        mask = self.model(image.unsqueeze(0))
+        mask = mask[0]
 
-def transparent(foreground, background, alpha_factor):
+        # get probability values (logits to probs)
+        mask_probs = torch.sigmoid(mask)
+        mask_probs = mask_probs.detach().numpy()  # (1, 512, 512)
 
-    foreground = np.array(foreground)
-    background = np.array(background)
+        # make binary mask
+        mask_preds = mask_probs > confidence
 
-    background = Image.fromarray(background)
-    foreground = Image.fromarray(foreground)
-    new_alpha_factor = int(255 * alpha_factor)
-    foreground.putalpha(new_alpha_factor)
-    background.paste(foreground, (0, 0), foreground)
+        # all combined
+        mask_all = mask_preds.sum(axis=0)
+        mask_all = np.expand_dims(mask_all, axis=0)  # (1, 512, 512)
 
-    return background
+        # Concat all combined with normal preds
+        mask_preds = np.concatenate((mask_all, mask_preds), axis=0)  # (20, 512, 512)
+        labs = ["ALL"] + self.classes
 
+        fig, axes = plt.subplots(5, 4, figsize=(10, 10))
 
-def show_img(all_imgs, dropdown, bg, alpha_factor):
-    idx = target_list_all.index(dropdown)
-    fg = all_imgs[idx]["name"]
+        # save all mask_preds in all_mask
+        all_masks = []
 
-    foreground = Image.open(fg)
-    background = np.array(bg)
+        for i, ax in enumerate(axes.flat):
+            label = labs[i]
 
-    background = Image.fromarray(bg)
-    new_alpha_factor = int(255 * alpha_factor)
-    foreground.putalpha(new_alpha_factor)
-    background.paste(foreground, (0, 0), foreground)
+            all_masks.append(mask_preds[i])
 
-    return background
+            ax.imshow(mask_preds[i])
+            ax.set_title(label)
 
+        plt.tight_layout()
 
-###########
-# Inference
-
-
-def inference(img: Image.Image, alpha_factor=0.4):
-    background = resize_pil(img)
-
-    img = process_pil(img)
-
-    # we need a batch, hence we introduce an extra dimenation at position 0 (unsqueeze)
-    mask = model(img.unsqueeze(0))
-    mask = mask[0]
-
-    # Get probability values (logits to probs)
-    mask_probs = torch.sigmoid(mask)
-    mask_probs = mask_probs.detach().numpy()
-    mask_probs.shape
-
-    # Make binary mask
-    THRESHOLD = 0.5
-    mask_preds = mask_probs > THRESHOLD
-
-    # All combined
-    mask_all = mask_preds.sum(axis=0)
-    mask_all = np.expand_dims(mask_all, axis=0)
-    mask_all.shape
-
-    # Concat all combined with normal preds
-    mask_preds = np.concatenate((mask_all, mask_preds), axis=0)
-    labs = ["ALL"] + target_list
-
-    fig, axes = plt.subplots(5, 4, figsize=(10, 10))
-
-    # save all mask_preds in all_mask
-    all_masks = []
-
-    for i, ax in enumerate(axes.flat):
-        label = labs[i]
-
-        all_masks.append(mask_preds[i])
-
-        ax.imshow(mask_preds[i])
-        ax.set_title(label)
-
-    plt.tight_layout()
-
-    # plt to PIL
-    img_buf = io.BytesIO()
-    fig.savefig(img_buf, format="png")
-    im = Image.open(img_buf)
-
-    # Saved all masks combined with unvisible xaxis und yaxis and without a white
-    # background.
-    all_images = []
-    for i in range(len(all_masks)):
-        plt.figure()
-        fig = plt.imshow(all_masks[i])
-        plt.axis("off")
-        fig.axes.get_xaxis().set_visible(False)
-        fig.axes.get_yaxis().set_visible(False)
+        # plt to PIL
         img_buf = io.BytesIO()
-        plt.savefig(img_buf, bbox_inches="tight", pad_inches=0, format="png")
-        all_images.append(Image.open(img_buf))
+        fig.savefig(img_buf, format="png")
+        im = Image.open(img_buf)
 
-    # create image with all masks overlayed on original image
-    composite = transparent(all_images[0], background, alpha_factor)
+        # Saved all masks combined with unvisible xaxis und yaxis and without a white
+        # background.
+        all_images: List[Image.Image] = []
+        for i in range(len(all_masks)):
+            plt.figure()
+            fig = plt.imshow(all_masks[i], interpolation="none", cmap="Reds")
+            plt.axis("off")
+            fig.axes.get_xaxis().set_visible(False)
+            fig.axes.get_yaxis().set_visible(False)
+            img_buf = io.BytesIO()
+            plt.savefig(img_buf, bbox_inches="tight", pad_inches=0, format="png")
+            all_images.append(
+                self._create_composite_image(
+                    Image.open(img_buf), background, alpha_factor
+                )
+            )
 
-    return im, all_images, background, composite
+        # create image with all masks overlayed on original image
+        composite = self._create_composite_image(
+            all_images[0], background, alpha_factor
+        )
+
+        return im, all_images, background, composite
 
 
 if __name__ == "__main__":
+    dacl = Dacl()
     img = Image.open(ROOT_DIR + "/assets/bridge_damage.jpg")
-    im, all_images, background, composite = inference(img, alpha_factor=0.4)
-    background.show()
-    composite.show()
-    im.show()
+    im, all_images, background, composite = dacl.inference(img, alpha_factor=0.4)

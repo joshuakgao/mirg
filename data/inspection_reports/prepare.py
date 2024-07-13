@@ -7,12 +7,14 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
 from ml_models.clip import Clip
+from ml_models.dacl import Dacl
 from paths import DATASETS_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
 
 if __name__ == "__main__":
     clip = Clip(model_id="G-14")
+    dacl = Dacl()
 
     DATA_DIR = os.path.join(DATASETS_DIR, "inspection_reports/data")
     for i, file_name in enumerate(os.listdir(DATA_DIR)):
@@ -48,6 +50,9 @@ if __name__ == "__main__":
 
             # add result to metadata
             images_metadata[image_filename] = {"content_type": classification}
+
+            if classification == "city":
+                im, all_images, background, composite = dacl.inference(image)
 
         # write images metadata to file
         metadata_filepath = os.path.join(image_dir, "metadata.json")

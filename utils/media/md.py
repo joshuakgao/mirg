@@ -8,7 +8,7 @@ def convert_md_base64_images_to_filepath_images(md_content: str, output_dir: str
 
     def replace_base64_with_path(match):
         base64_str = match.group(2)
-        img_path = save_base64_image(base64_str, output_dir, image_format="jpeg")
+        img_path = save_base64_image(base64_str, output_dir, image_format="png")
         return f"![Image](images/{img_path})"
 
     # Replace all base64 images with file paths

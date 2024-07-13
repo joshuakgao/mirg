@@ -1,4 +1,4 @@
-from dataparsers.muMuQA import MuMuQA
+from data.muMuQA.dataparser import MuMuQA
 from ml_models.gemini import Gemini
 from utils.media.image import download_image
 from utils.mu_rag import mu_rag
