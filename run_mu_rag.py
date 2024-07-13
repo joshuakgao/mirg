@@ -1,7 +1,7 @@
 from dataparsers.muMuQA import MuMuQA
 from ml_models.gemini import Gemini
 from utils.media.image import download_image
-from utils.mu_rag import muRag
+from utils.mu_rag import mu_rag
 
 
 muMuQA = MuMuQA()  # init db
@@ -14,7 +14,7 @@ while True:
 
     # run MuRag on query image and images in database
     query_image = download_image(query_image_url)
-    top_k_indexes = muRag(query_image, query_text, muMuQA.faiss_index)
+    top_k_indexes = mu_rag(query_image, query_text, muMuQA.faiss_index)
     print(top_k_indexes)
 
     # build context from MuRAG

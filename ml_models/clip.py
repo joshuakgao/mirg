@@ -4,8 +4,7 @@ import numpy as np
 import open_clip
 import torch
 from PIL import Image
-from typing import List
-
+from typing import List, Literal, List
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -14,7 +13,7 @@ from paths import ROOT_DIR
 
 
 class Clip:
-    def __init__(self, model_id="B-32"):
+    def __init__(self, model_id: Literal["B-32", "L-14", "H-14", "G-14"] = "B-32"):
         model, preporcess, tokenizer = self._select_clip_model(model_id)
         self.model = model
         self.preprocess = preporcess
@@ -38,7 +37,7 @@ class Clip:
 
         return model, preprocess_train, tokenizer
 
-    def encode(self, images=[], text=[]):
+    def encode(self, images: List[Image.Image] = [], text: List[str] = []):
         """
         Encode list of images and list of text with clip
         """

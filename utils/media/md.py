@@ -2,7 +2,7 @@ import re
 from utils.media.image import save_base64_image
 
 
-def convert_md_base64_images_to_filepath_images(md_content, output_dir):
+def convert_md_base64_images_to_filepath_images(md_content: str, output_dir: str):
     # Regular expression to find base64 encoded images
     base64_img_regex = re.compile(r"!\[.*?\]\(data:image\/(.*?);base64, (.*?)\)")
 

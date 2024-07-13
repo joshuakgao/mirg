@@ -1,11 +1,15 @@
 import numpy as np
 from ml_models.clip import Clip
-
+from PIL import Image
+from faiss import IndexFlatIP
+from typing import List
 
 clip = Clip()
 
 
-def muRag(query_image, query_text, faiss_index, k=3):
+def mu_rag(
+    query_image: Image.Image, query_text: str, faiss_index: IndexFlatIP, k=3
+) -> List[int]:
     # get image and text embeddings
     query_image_embeddings, query_text_embeddings = clip.encode(
         images=[query_image], text=[query_text]

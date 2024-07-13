@@ -15,7 +15,7 @@ from utils.logger import Logger
 logger = Logger()
 
 
-def convert_pdf_to_md(file_path, paginate=False):
+def convert_pdf_to_md(file_path: str, paginate=False):
     logger.log(f"Converting to markdown: {os.path.basename(file_path)}")
 
     # convert pdf to html

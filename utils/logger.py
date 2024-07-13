@@ -22,7 +22,7 @@ class Logger:
             # Create the directory if it doesn't exist
             os.makedirs(log_dir)
 
-    def log(self, message):
+    def log(self, message: str):
         print(message)
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_message = f"[{current_time}] {message}"

@@ -12,7 +12,7 @@ from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
 
 if __name__ == "__main__":
-    clip = Clip(model_id="H-14")
+    clip = Clip(model_id="G-14")
 
     DATA_DIR = os.path.join(DATASETS_DIR, "inspection_reports/data")
     for i, file_name in enumerate(os.listdir(DATA_DIR)):

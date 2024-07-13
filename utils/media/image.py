@@ -5,7 +5,7 @@ import requests
 from PIL import Image, UnidentifiedImageError
 
 
-def download_image(url):
+def download_image(url: str):
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()  # Check if the request was successful
@@ -20,7 +20,7 @@ def download_image(url):
     return None
 
 
-def save_base64_image(base64_str, output_dir, image_format="jpeg"):
+def save_base64_image(base64_str: str, output_dir: str, image_format="jpeg"):
     # Ensure output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

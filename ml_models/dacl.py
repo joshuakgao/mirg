@@ -134,7 +134,7 @@ def show_img(all_imgs, dropdown, bg, alpha_factor):
 # Inference
 
 
-def inference(img, alpha_factor):
+def inference(img: Image.Image, alpha_factor=0.4):
     background = resize_pil(img)
 
     img = process_pil(img)
