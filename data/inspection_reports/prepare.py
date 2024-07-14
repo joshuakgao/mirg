@@ -25,6 +25,9 @@ def check_if_downloads_exist():
     check_files_and_directories(required_file_paths, non_empty_dirs)
 
 
+def remove_image_duplicates(): ...
+
+
 if __name__ == "__main__":
     check_if_downloads_exist()
 
@@ -83,7 +86,9 @@ if __name__ == "__main__":
 
             # get list of damage segmentation images by category
             logger.log(f"Saving damage images:{image_filepath}")
-            damages = dacl.assess_damage(image)  # (damage_image, mask, category)
+            damages = dacl.assess_damage(
+                image, min_mask_size=13107  # 5% of a 512x512 image
+            )  # (damage_image, mask, category)
 
             # create damages dict
             images_metadata[image_filename]["damages"] = {}
