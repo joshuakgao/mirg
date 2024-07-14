@@ -4,16 +4,5 @@ __pycache__/
 # macOS system files
 .DS_Store
 
-# Log files
-logs/*
-
 # Sensitive information
 gemini_key.txt
-
-# Dataset files
-data/muMuQA/data/*.json
-data/webQA/data/*.json
-data/inspection_reports/data/*
-
-# model weights
-ml_models/model_weights/*
