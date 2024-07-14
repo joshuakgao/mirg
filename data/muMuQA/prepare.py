@@ -6,12 +6,11 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
 from ml_models.clip import Clip
-from paths import DATASETS_DIR
-from utils.logger import Logger
+from paths import ROOT_DIR
+from utils.logger import logger
 from utils.media.image import download_image
 
 clip = Clip()
-logger = Logger()
 
 
 def pre_encode_split_until_done(split, path):
@@ -78,9 +77,9 @@ def save_split_to_file(split, path):
 
 if __name__ == "__main__":
     # set data paths
-    train_path = os.path.join(DATASETS_DIR, "muMuQA/train.json")
-    dev_path = os.path.join(DATASETS_DIR, "muMuQA/dev.json")
-    test_path = os.path.join(DATASETS_DIR, "muMuQA/test.json")
+    train_path = os.path.join(ROOT_DIR, "data/muMuQA/train.json")
+    dev_path = os.path.join(ROOT_DIR, "data/muMuQA/dev.json")
+    test_path = os.path.join(ROOT_DIR, "data/muMuQA/test.json")
 
     # open raw data
     train = json.loads(open(train_path, "r").read())

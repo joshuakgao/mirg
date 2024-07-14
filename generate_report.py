@@ -6,23 +6,23 @@ from ml_models.gemini import Gemini
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
-from paths import DATASETS_DIR
+from paths import ROOT_DIR
 
 
 gemini = Gemini()
 
 print("Getting report images...")
-IMAGES_DIR = (
-    DATASETS_DIR + "/inspection_reports/data/14-246-AA03-51-003_FCReport_2023-06/images"
+images_dir = os.path.join(
+    ROOT_DIR, "data/inspection_reports/data/14-246-AA03-51-003_FCReport_2023-06/images"
 )
 
 images = []
-for file_name in os.listdir(IMAGES_DIR):
+for file_name in os.listdir(images_dir):
     # ignore non-pdf files
     if not file_name.endswith(".jpeg"):
         continue
 
-    image_path = os.path.join(IMAGES_DIR, file_name)
+    image_path = os.path.join(images_dir, file_name)
     img = Image.open(image_path)
     images.append(file_name)
     images.append(img)

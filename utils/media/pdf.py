@@ -9,10 +9,7 @@ sys.path.append(
 )  # for importing paths
 from utils.media.md import convert_md_base64_images_to_filepath_images
 from paths import ROOT_DIR
-from utils.logger import Logger
-
-
-logger = Logger()
+from utils.logger import logger
 
 
 def convert_pdf_to_md(file_path: str, paginate=False):

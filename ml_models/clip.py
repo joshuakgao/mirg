@@ -66,7 +66,7 @@ class Clip:
 
 if __name__ == "__main__":
     clip = Clip()
-    img = Image.open(ROOT_DIR + "/assets/bridge_damage.jpg")
+    img = Image.open(os.path.join(ROOT_DIR, "assets/bridge_damage.jpg"))
     images_features, text_features = clip.encode(
         images=[img], text=["Some string here", "Another string"]
     )

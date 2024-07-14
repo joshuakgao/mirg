@@ -28,6 +28,6 @@ class Gemini:
 
 if __name__ == "__main__":
     gemini = Gemini()
-    img = Image.open(ROOT_DIR + "/assets/bridge_damage.jpg")
+    img = Image.open(os.path(ROOT_DIR, "assets/bridge_damage.jpg"))
     response = gemini.query([img, "Describe the damages"])
     print(response)

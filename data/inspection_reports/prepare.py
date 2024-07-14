@@ -16,17 +16,17 @@ if __name__ == "__main__":
     clip = Clip(model_id="B-32")
     dacl = Dacl()
 
-    DATA_DIR = os.path.join(ROOT_DIR, "data/inspection_reports/data")
-    for i, file_name in enumerate(os.listdir(DATA_DIR)):
+    reports_dir = os.path.join(ROOT_DIR, "data/inspection_reports/data")
+    for i, file_name in enumerate(os.listdir(reports_dir)):
         # ignore non-pdf files
         if not file_name.endswith(".pdf"):
             continue
 
         logger.log(
-            f"({i+1} of {len(os.listdir(DATA_DIR))}) Preparing inspection report: {file_name}"
+            f"({i+1} of {len(os.listdir(reports_dir))}) Preparing inspection report: {file_name}"
         )
 
-        file_path = os.path.join(DATA_DIR, file_name)
+        file_path = os.path.join(reports_dir, file_name)
         report_dir = convert_pdf_to_md(file_path, paginate=True)
 
         image_dir = os.path.join(report_dir, "images")

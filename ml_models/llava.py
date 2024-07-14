@@ -37,12 +37,13 @@ class Llava:
 
 if __name__ == "__main__":
     llava = Llava()
+    image = os.path.join(ROOT_DIR, "assets/bridge_damage.jpg")
     response = llava.query(
         messages=[
             {
                 "role": "user",
                 "content": "What is in this image?",
-                "images": [ROOT_DIR + "/assets/bridge_damage.jpg"],
+                "images": [image],
             },
         ]
     )

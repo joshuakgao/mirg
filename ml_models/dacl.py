@@ -31,7 +31,7 @@ class Dacl:
         self.classes, self.label2id, self.id2label = self._define_classes()
         self.transforms = self._define_transforms()
         # self.device = detect_device()
-        model_path = ROOT_DIR + "/ml_models/model_weights/dacl.pth"
+        model_path = os.path.join(ROOT_DIR, "ml_models/model_weights/dacl.pth")
         self.model = self._load_model(model_path)
 
     def _define_classes(self):
@@ -206,6 +206,6 @@ class Dacl:
 
 if __name__ == "__main__":
     dacl = Dacl()
-    img = Image.open(ROOT_DIR + "/assets/bridge_damage_2.png")
+    img = Image.open(os.path.join(ROOT_DIR, "assets/bridge_damage_2.png"))
     img.show()
     print(dacl.assess_damage(img))
