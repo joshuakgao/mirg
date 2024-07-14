@@ -11,3 +11,4 @@ torchvision==0.18.1
 matplotlib==3.9.1
 transformers==4.42.4
 markdownify==0.12.1
+psutil==6.0.0

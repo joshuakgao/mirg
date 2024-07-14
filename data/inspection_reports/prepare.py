@@ -2,19 +2,34 @@ import os
 import sys
 import json
 from PIL import Image
+import psutil
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
 from ml_models.clip import Clip
-from ml_models.dacl import *
+from ml_models.dacl import Dacl
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
+from utils.media.file_validation import check_files_and_directories
+
+process = psutil.Process()
+
+
+def check_if_downloads_exist():
+    required_file_paths = [os.path.join(ROOT_DIR, "ml_models/model_weights/dacl.pth")]
+    non_empty_dirs = [
+        os.path.join(ROOT_DIR, "data/inspection_reports/data"),
+    ]
+    check_files_and_directories(required_file_paths, non_empty_dirs)
+
 
 if __name__ == "__main__":
-    clip = Clip(model_id="B-32")
-    dacl = Dacl()
+    check_if_downloads_exist()
+
+    clip = Clip(model_id="H-14", device="auto")
+    dacl = Dacl(device="cpu")
 
     reports_dir = os.path.join(ROOT_DIR, "data/inspection_reports/data")
     for i, file_name in enumerate(os.listdir(reports_dir)):
@@ -32,6 +47,8 @@ if __name__ == "__main__":
         image_dir = os.path.join(report_dir, "images")
         images_metadata = {}
         for i, image_filename in enumerate(os.listdir(image_dir)):
+            print("Memory used:", process.memory_info().rss / 1000000000)
+
             image_filepath = os.path.join(
                 image_dir, image_filename
             )  # report/images/image_name.jpeg
@@ -45,36 +62,50 @@ if __name__ == "__main__":
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
-            classes = ["city", "map", "diagram", "logo"]
+            classes = ["concrete", "grass field", "map", "diagram", "logo", "nothing"]
             probs = clip.image_classification(image, classes)
 
             # Find the class with the highest probability
             classification = max(zip(probs, classes))[1]
-            print(classification)
+            logger.log(classification)
+
+            # delete images that are nothing
+            if classification == "nothing":
+                os.remove(image_filepath)
+                continue
 
             # add result to metadata
             images_metadata[image_filename] = {"image_type": classification}
 
             # execute the following code only if the classification is "city"
-            if classification != "city":
+            if classification != "concrete":
                 continue
 
             # get list of damage segmentation images by category
-            damages = dacl.assess_damage(image)  # (damage_image, category)
+            logger.log(f"Saving damage images:{image_filepath}")
+            damages = dacl.assess_damage(image)  # (damage_image, mask, category)
+
+            # create damages dict
+            images_metadata[image_filename]["damages"] = {}
 
             # add damage categories to image metadata
-            images_metadata[image_filename]["damages"] = [
-                damage_category for _, damage_category in damages
+            images_metadata[image_filename]["damages"]["categories"] = [
+                damage_category for _, _, damage_category in damages
             ]
 
+            # add damage masks to image metadata
+            for _, mask, damage_category in damages:
+                images_metadata[image_filename]["damages"][
+                    damage_category
+                ] = mask.tolist()
+
             # save damage images to new dir under images dir
-            for damage_image, damage_category in damages:
+            for damage_image, _, damage_category in damages:
                 # create dir for damage assetsment images
                 image_basename = os.path.basename(image_filename)
                 image_name_without_extension = os.path.splitext(image_basename)[
                     0
                 ]  # inspection_report
-                print(image_name_without_extension)
                 damage_images_dir = os.path.join(
                     image_dir, image_name_without_extension
                 )

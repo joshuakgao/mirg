@@ -8,7 +8,7 @@ class Logger:
         self.log_path = log_path
         self._ensure_log_directory_exists()
         self.log(
-            "================================================\n"
+            "\n\n\n================================================"
         )  # add line break on every run
 
         # for importing

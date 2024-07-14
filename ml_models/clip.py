@@ -10,10 +10,14 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
 from paths import ROOT_DIR
+from utils.device_selector import device_selector
 
 
 class Clip:
-    def __init__(self, model_id: Literal["B-32", "L-14", "H-14", "G-14"] = "B-32"):
+    def __init__(
+        self, model_id: Literal["B-32", "L-14", "H-14", "G-14"] = "B-32", device="auto"
+    ):
+        self.device = device_selector(device, label="CLIP")
         model, preporcess, tokenizer = self._select_clip_model(model_id)
         self.model = model
         self.preprocess = preporcess
@@ -31,7 +35,7 @@ class Clip:
         }
         model_id = model_ids[model_id]
         model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms(
-            model_id
+            model_id, device=self.device
         )
         tokenizer = open_clip.get_tokenizer(model_id)
 
@@ -51,16 +55,18 @@ class Clip:
         return images_features, text_features
 
     def image_classification(self, image: Image.Image, classes: List[str]):
-        image = self.preprocess(image).unsqueeze(0)
-        classes = self.tokenizer(classes)
+        image = self.preprocess(image).unsqueeze(0).to(self.device)
+        classes = self.tokenizer(classes).to(self.device)
 
-        image_features = self.model.encode_image(image)
-        text_features = self.model.encode_text(classes)
+        with torch.no_grad():
+            image_features = self.model.encode_image(image)
+            text_features = self.model.encode_text(classes)
 
-        image_features /= image_features.norm(dim=-1, keepdim=True)
-        text_features /= text_features.norm(dim=-1, keepdim=True)
+            image_features /= image_features.norm(dim=-1, keepdim=True)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
 
-        text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+            text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+
         return text_probs[0]
 
 
