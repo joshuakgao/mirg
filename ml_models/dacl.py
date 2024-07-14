@@ -4,7 +4,6 @@ import os
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from matplotlib import colors
 from PIL import Image
 from torch import nn
 from torchvision import transforms
@@ -15,7 +14,6 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
 from paths import ROOT_DIR
-from utils.device_detector import detect_device
 
 
 class SegModel(nn.Module):
@@ -75,15 +73,6 @@ class Dacl:
         self.normalize = transforms.Normalize(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
-        return {
-            "to_tensor": transforms.ToTensor(),
-            "to_array": transforms.ToPILImage(),
-            "resize": transforms.Resize((512, 512)),
-            "resize_small": transforms.Resize((369, 369)),
-            "normalize": transforms.Normalize(
-                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-            ),
-        }
 
     def _load_model(self, model_path):
         print(f"Loading Dacl weights from {model_path}")
@@ -91,7 +80,7 @@ class Dacl:
             "nvidia/mit-b1", id2label=self.id2label, label2id=self.label2id
         )
         model = SegModel(segformer)
-        model = torch.load(model_path)
+        model = torch.load(model_path, map_location="cpu")
         model.eval()
         return model
 
@@ -126,7 +115,7 @@ class Dacl:
 
         return background
 
-    def inference(self, image: Image.Image, confidence=0.5, alpha_factor=0.1):
+    def inference(self, image: Image.Image, confidence=0.7, alpha_factor=0.6):
         # preprocess images
         background = self._resize_image(image)
         image = self._preprocess_image(image)
@@ -149,6 +138,9 @@ class Dacl:
         # Concat all combined with normal preds
         mask_preds = np.concatenate((mask_all, mask_preds), axis=0)  # (20, 512, 512)
         labs = ["ALL"] + self.classes
+
+        # see if masks exists for each prediction
+        mask_exists = [np.any(pred) for pred in mask_preds]
 
         fig, axes = plt.subplots(5, 4, figsize=(10, 10))
 
@@ -192,10 +184,28 @@ class Dacl:
             all_images[0], background, alpha_factor
         )
 
-        return im, all_images, background, composite
+        return im, all_images, background, composite, mask_exists
+
+    def assess_damage(self, image: Image.Image):
+        print(image)
+        _, all_images, _, _, mask_exists = self.inference(image)
+
+        # we only get a certain range of all_images becuase the other categories aren't considered damages
+        all_images = all_images[1:12]
+        mask_exists = mask_exists[1:12]
+
+        # ignore the damage categories that are empty
+        damaged_images_list = [
+            (img, label)
+            for img, exists, label in zip(all_images, mask_exists, self.classes)
+            if exists
+        ]
+
+        return damaged_images_list
 
 
 if __name__ == "__main__":
     dacl = Dacl()
-    img = Image.open(ROOT_DIR + "/assets/bridge_damage.jpg")
-    im, all_images, background, composite = dacl.inference(img, alpha_factor=0.4)
+    img = Image.open(ROOT_DIR + "/assets/bridge_damage_2.png")
+    img.show()
+    print(dacl.assess_damage(img))

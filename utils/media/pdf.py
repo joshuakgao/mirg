@@ -8,7 +8,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing paths
 from utils.media.md import convert_md_base64_images_to_filepath_images
-from paths import DATASETS_DIR
+from paths import ROOT_DIR
 from utils.logger import Logger
 
 
@@ -47,7 +47,7 @@ def convert_pdf_to_md(file_path: str, paginate=False):
         parent_dir, file_name_without_extension
     )  # ../inspection_report/
     os.makedirs(report_dir, exist_ok=True)
-    images_dir = report_dir + "/images"  # ../inspection_report/images/
+    images_dir = os.path.join(report_dir, "images")  # ../inspection_report/images/
 
     for i, page in enumerate(paginated_pdf_md):
         # convert all base64 images in md to a file path image, since base64 images not supported in md
@@ -62,7 +62,7 @@ def convert_pdf_to_md(file_path: str, paginate=False):
 
 
 if __name__ == "__main__":
-    pdf_file_path = (
-        DATASETS_DIR + "/inspection_reports/data/12-085-E000-12-004_RTInsp_2023-12.pdf"
+    pdf_file_path = os.path.join(
+        ROOT_DIR, "data/inspection_reports/data/12-085-E000-12-004_RTInsp_2023-12.pdf"
     )
     convert_pdf_to_md(pdf_file_path, paginate=True)

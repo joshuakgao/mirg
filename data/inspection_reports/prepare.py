@@ -7,16 +7,16 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
 from ml_models.clip import Clip
-from ml_models.dacl import Dacl
-from paths import DATASETS_DIR
+from ml_models.dacl import *
+from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
 
 if __name__ == "__main__":
-    clip = Clip(model_id="G-14")
+    clip = Clip(model_id="B-32")
     dacl = Dacl()
 
-    DATA_DIR = os.path.join(DATASETS_DIR, "inspection_reports/data")
+    DATA_DIR = os.path.join(ROOT_DIR, "data/inspection_reports/data")
     for i, file_name in enumerate(os.listdir(DATA_DIR)):
         # ignore non-pdf files
         if not file_name.endswith(".pdf"):
@@ -41,6 +41,10 @@ if __name__ == "__main__":
             )
 
             image = Image.open(image_filepath)
+
+            if image.mode != "RGB":
+                image = image.convert("RGB")
+
             classes = ["city", "map", "diagram", "logo"]
             probs = clip.image_classification(image, classes)
 
@@ -49,10 +53,39 @@ if __name__ == "__main__":
             print(classification)
 
             # add result to metadata
-            images_metadata[image_filename] = {"content_type": classification}
+            images_metadata[image_filename] = {"image_type": classification}
 
-            if classification == "city":
-                im, all_images, background, composite = dacl.inference(image)
+            # execute the following code only if the classification is "city"
+            if classification != "city":
+                continue
+
+            # get list of damage segmentation images by category
+            damages = dacl.assess_damage(image)  # (damage_image, category)
+
+            # add damage categories to image metadata
+            images_metadata[image_filename]["damages"] = [
+                damage_category for _, damage_category in damages
+            ]
+
+            # save damage images to new dir under images dir
+            for damage_image, damage_category in damages:
+                # create dir for damage assetsment images
+                image_basename = os.path.basename(image_filename)
+                image_name_without_extension = os.path.splitext(image_basename)[
+                    0
+                ]  # inspection_report
+                print(image_name_without_extension)
+                damage_images_dir = os.path.join(
+                    image_dir, image_name_without_extension
+                )
+                if not os.path.exists(damage_images_dir):
+                    os.makedirs(damage_images_dir)
+
+                # save damage image
+                damage_image_filepath = os.path.join(
+                    image_dir, f"{damage_images_dir}/{damage_category}.png"
+                )
+                damage_image.save(damage_image_filepath)
 
         # write images metadata to file
         metadata_filepath = os.path.join(image_dir, "metadata.json")
