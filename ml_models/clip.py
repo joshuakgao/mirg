@@ -47,8 +47,8 @@ class Clip:
         """
         images = [self.preprocess(image) for image in images]
 
-        images_input = torch.tensor(np.stack(images))
-        text_input = self.tokenizer(text)
+        images_input = torch.tensor(np.stack(images)).to(self.device)
+        text_input = self.tokenizer(text).to(self.device)
         with torch.no_grad():
             images_features = self.model.encode_image(images_input)
             text_features = self.model.encode_text(text_input)
