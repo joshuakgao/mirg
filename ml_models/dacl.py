@@ -16,6 +16,7 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from utils.device_selector import device_selector
+from utils.logger import logger
 
 
 class SegModel(nn.Module):
@@ -80,7 +81,7 @@ class Dacl:
         )
 
     def _load_model(self, model_path):
-        print(f"Loading Dacl weights from {model_path}")
+        logger.log(f"Loading Dacl weights from {model_path}")
         segformer = SegformerForSemanticSegmentation.from_pretrained(
             "nvidia/mit-b1", id2label=self.id2label, label2id=self.label2id
         )
@@ -223,8 +224,9 @@ class Dacl:
         return damaged_images_list
 
 
+dacl = Dacl()
+
 if __name__ == "__main__":
-    dacl = Dacl()
     img = Image.open(os.path.join(ROOT_DIR, "assets/bridge_damage_2.png"))
     img.show()
     print(dacl.assess_damage(img))

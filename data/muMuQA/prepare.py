@@ -5,12 +5,10 @@ import sys
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
-from ml_models.clip import Clip
+from ml_models.clip import clip
 from paths import ROOT_DIR
 from utils.logger import logger
 from utils.media.image import download_image
-
-clip = Clip()
 
 
 def pre_encode_split_until_done(split, path):

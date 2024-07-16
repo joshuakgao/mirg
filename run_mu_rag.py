@@ -1,11 +1,8 @@
-from data.muMuQA.dataparser import MuMuQA
-from ml_models.gemini import Gemini
+from data.muMuQA.dataparser import muMuQA
+from ml_models.gemini import gemini
 from utils.media.image import download_image
 from utils.mu_rag import mu_rag
 
-
-muMuQA = MuMuQA()  # init db
-gemini = Gemini()  # init Gemini LLM
 
 while True:
     # get query from user

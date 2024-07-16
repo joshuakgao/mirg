@@ -1,15 +1,13 @@
 import os
 import sys
 from PIL import Image
-from ml_models.gemini import Gemini
+from ml_models.gemini import gemini
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
 from paths import ROOT_DIR
 
-
-gemini = Gemini()
 
 print("Getting report images...")
 images_dir = os.path.join(

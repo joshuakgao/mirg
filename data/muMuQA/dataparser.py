@@ -7,15 +7,12 @@ import numpy as np
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing subdirectory scripts
-from ml_models.clip import Clip
+from ml_models.clip import clip
 from utils.media.image import download_image
 from paths import ROOT_DIR
 
 # fixes a faiss error. See: https://stackoverflow.com/questions/53014306/error-15-initializing-libiomp5-dylib-but-found-libiomp5-dylib-already-initial
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
-
-
-clip = Clip()
 
 
 class MuMuQA:
@@ -48,5 +45,4 @@ class MuMuQA:
         return [self.train[i] for i in indexes]
 
 
-if __name__ == "__main__":
-    muMuQA = MuMuQA()
+muMuQA = MuMuQA()

@@ -1,5 +1,6 @@
 import os
 from typing import List
+from utils.logger import logger
 
 
 def _get_empty_dirs(directories: List[str]):
@@ -11,7 +12,7 @@ def _get_empty_dirs(directories: List[str]):
 
         # check if dir is empty
         elif len(os.listdir(dir)) <= 1:
-            print(f"The dir {dir} is empty")
+            logger.log(f"The dir {dir} is empty")
             empty_dirs.append(dir)
 
     return empty_dirs
@@ -22,7 +23,7 @@ def _get_missing_files(file_paths: List[str]):
     for path in file_paths:
         # check if file exists
         if not os.path.exists(path):
-            print(f"The file '{path}' does not exist.")
+            logger.log(f"The file '{path}' does not exist.")
             missing_files.append(path)
 
     return missing_files

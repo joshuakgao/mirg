@@ -1,5 +1,6 @@
 import torch
 from typing import Literal
+from utils.logger import logger
 
 
 def device_selector(device: Literal["auto", "cpu", "mps", "cuda"] = "auto", label=""):
@@ -10,5 +11,5 @@ def device_selector(device: Literal["auto", "cpu", "mps", "cuda"] = "auto", labe
         elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
             device = "mps"
 
-    print(f"{label}: Using device {device}")
+    logger.log(f"{label}: Using device {device}")
     return device

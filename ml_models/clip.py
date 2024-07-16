@@ -23,6 +23,11 @@ class Clip:
         self.preprocess = preporcess
         self.tokenizer = tokenizer
 
+        # fixes RuntimeError: CUDA error: invalid configuration argument. See: https://stackoverflow.com/questions/77343471/pytorch-cuda-error-invalid-configuration-argument
+        torch.backends.cuda.enable_mem_efficient_sdp(False)
+        torch.backends.cuda.enable_flash_sdp(False)
+        torch.backends.cuda.enable_math_sdp(True)
+
     def _select_clip_model(self, model_id):
         """
         Return clip encoder and
@@ -47,9 +52,9 @@ class Clip:
         """
         images = [self.preprocess(image) for image in images]
 
-        images_input = torch.tensor(np.stack(images)).to(self.device)
-        text_input = self.tokenizer(text).to(self.device)
         with torch.no_grad():
+            images_input = torch.tensor(np.stack(images)).to(self.device)
+            text_input = self.tokenizer(text).to(self.device)
             images_features = self.model.encode_image(images_input)
             text_features = self.model.encode_text(text_input)
         return images_features, text_features
@@ -70,8 +75,9 @@ class Clip:
         return text_probs[0]
 
 
+clip = Clip("G-14")
+
 if __name__ == "__main__":
-    clip = Clip()
     img = Image.open(os.path.join(ROOT_DIR, "assets/bridge_damage.jpg"))
     images_features, text_features = clip.encode(
         images=[img], text=["Some string here", "Another string"]

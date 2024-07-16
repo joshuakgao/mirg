@@ -3,12 +3,11 @@
 ## Quick Start
 
 ```
-conda create -n mirg python=3.11 -y
-conda activate
+conda create -n mirg python=3.9 -y
+conda activate mirg
 conda env config vars set GEMINI_KEY=<YOUR_GEMINI_KEY_HERE>
+conda install pytorch torchvision pytorch-cuda=12.1 faiss-gpu=1.8.0 -c pytorch -c nvidia -y
 pip install -r requirements.txt
-python data/muMuQA/prepare.py
-python main.py
 ```
 
 ## Model Downloads

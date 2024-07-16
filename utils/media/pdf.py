@@ -8,8 +8,14 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing paths
 from utils.media.md import convert_md_base64_images_to_filepath_images
+from utils.media.image import find_duplicate_images
 from paths import ROOT_DIR
 from utils.logger import logger
+
+
+def replace_image_paths(md: str, old_image_path: str, new_image_path: str):
+    new_md = md.replace(old_image_path, new_image_path)
+    return new_md
 
 
 def convert_pdf_to_md(file_path: str, paginate=False):
@@ -46,14 +52,37 @@ def convert_pdf_to_md(file_path: str, paginate=False):
     os.makedirs(report_dir, exist_ok=True)
     images_dir = os.path.join(report_dir, "images")  # ../inspection_report/images/
 
-    for i, page in enumerate(paginated_pdf_md):
+    for i, page_md in enumerate(paginated_pdf_md):
         # convert all base64 images in md to a file path image, since base64 images not supported in md
-        new_md_content = convert_md_base64_images_to_filepath_images(page, images_dir)
+        new_md_content = convert_md_base64_images_to_filepath_images(
+            page_md, images_dir
+        )
+        paginated_pdf_md[i] = new_md_content
+
+    # replace duplicate images
+    duplicate_groups = find_duplicate_images(images_dir)
+    for i, page_md in enumerate(paginated_pdf_md):
+        for replacement_image, to_be_removed_images in duplicate_groups.items():
+            replacement_image_relative_path = os.path.basename(replacement_image)
+            for to_be_removed_image in to_be_removed_images:
+                # delete duplicate image
+                logger.log(f"deleting duplicate: {to_be_removed_image}")
+                if os.path.exists(to_be_removed_image):
+                    os.remove(to_be_removed_image)
+
+                to_be_removed_image_relative_path = os.path.basename(
+                    to_be_removed_image
+                )
+                page_md = replace_image_paths(
+                    page_md,
+                    to_be_removed_image_relative_path,
+                    replacement_image_relative_path,
+                )
 
         # write md to doc dir
         md_page_file_path = report_dir + f"/page{i+1}.md"
         with open(md_page_file_path, "w") as f:
-            f.write(new_md_content)
+            f.write(page_md)
 
     return report_dir
 

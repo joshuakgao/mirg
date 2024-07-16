@@ -7,8 +7,8 @@ import psutil
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
-from ml_models.clip import Clip
-from ml_models.dacl import Dacl
+from ml_models.clip import clip
+from ml_models.dacl import dacl
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
@@ -31,9 +31,6 @@ def remove_image_duplicates(): ...
 if __name__ == "__main__":
     check_if_downloads_exist()
 
-    clip = Clip(model_id="H-14", device="auto")
-    dacl = Dacl(device="cpu")
-
     reports_dir = os.path.join(ROOT_DIR, "data/inspection_reports/data")
     for i, file_name in enumerate(os.listdir(reports_dir)):
         # ignore non-pdf files
@@ -44,6 +41,7 @@ if __name__ == "__main__":
             f"({i+1} of {len(os.listdir(reports_dir))}) Preparing inspection report: {file_name}"
         )
 
+        # convert pdf inpsection report to md and save images to images/ dir
         file_path = os.path.join(reports_dir, file_name)
         report_dir = convert_pdf_to_md(file_path, paginate=True)
 
@@ -56,16 +54,21 @@ if __name__ == "__main__":
                 image_dir, image_filename
             )  # report/images/image_name.jpeg
 
-            logger.log(
-                f"({i+1} of {len(os.listdir(image_dir))}) Checking if is a structure: {image_filepath}"
-            )
+            logger.log(f"Checking if is a structure: {image_filepath}")
 
             image = Image.open(image_filepath)
 
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
-            classes = ["concrete", "grass field", "map", "diagram", "logo", "nothing"]
+            classes = [
+                "concrete",
+                "grass field",
+                "map",
+                "diagram",
+                "logo",
+                "blank",
+            ]
             probs = clip.image_classification(image, classes)
 
             # Find the class with the highest probability
@@ -73,7 +76,7 @@ if __name__ == "__main__":
             logger.log(classification)
 
             # delete images that are nothing
-            if classification == "nothing":
+            if classification == "blank":
                 os.remove(image_filepath)
                 continue
 
@@ -87,7 +90,7 @@ if __name__ == "__main__":
             # get list of damage segmentation images by category
             logger.log(f"Saving damage images:{image_filepath}")
             damages = dacl.assess_damage(
-                image, min_mask_size=13107  # 5% of a 512x512 image
+                image, confidence=0.4, min_mask_size=13107  # 5% of a 512x512 image
             )  # (damage_image, mask, category)
 
             # create damages dict
