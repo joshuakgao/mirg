@@ -11,5 +11,5 @@ def device_selector(device: Literal["auto", "cpu", "mps", "cuda"] = "auto", labe
         elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
             device = "mps"
 
-    logger.log(f"{label}: Using device {device}")
+    logger.log(f"Using device {device} for {label}")
     return device

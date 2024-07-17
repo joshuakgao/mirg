@@ -30,6 +30,9 @@ def download_image(url: str):
 
 
 def save_base64_image(base64_str: str, output_dir: str, image_format="jpeg"):
+    """
+    Saves a base64 image to a file in output_dir
+    """
     # Ensure output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -46,6 +49,17 @@ def save_base64_image(base64_str: str, output_dir: str, image_format="jpeg"):
         img_file.write(image_data)
 
     return img_filename
+
+
+def convert_image_to_base64(image: Image.Image):
+    # Convert the image to bytes
+    byte_arr = io.BytesIO()
+    image.save(byte_arr, format="PNG")
+    byte_arr = byte_arr.getvalue()
+
+    # Convert to base64
+    base64_image = base64.b64encode(byte_arr).decode("utf-8")
+    return base64_image
 
 
 def find_duplicate_images(images_dir: str, threshold=0.9):

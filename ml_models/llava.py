@@ -29,11 +29,24 @@ class Llava:
     def query(self, messages: Sequence[Message]):
         logger.log(f"Querying {self.model}...")
 
-        response = ollama.chat(model="llava", messages=messages)
+        response = ollama.chat(model=self.model, messages=messages)
         return response["message"]["content"]
 
+    def caption_image(
+        self, filepath: str, context: str = "Describe in detail what is in this image"
+    ):
+        logger.log(f"Captioning image: {filepath}")
 
-llava = Llava()
+        caption = self.query(
+            messages=[
+                {"role": "system", "content": context},
+                {"role": "user", "content": "Image:", "images": [filepath]},
+            ]
+        )
+        return caption
+
+
+llava = Llava("llava:34b")
 
 if __name__ == "__main__":
     image = os.path.join(ROOT_DIR, "assets/bridge_damage.jpg")

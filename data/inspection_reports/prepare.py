@@ -9,6 +9,7 @@ sys.path.append(
 )  # for importing utils
 from ml_models.clip import clip
 from ml_models.dacl import dacl
+from ml_models.llava import llava
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
@@ -83,6 +84,10 @@ if __name__ == "__main__":
             # add result to metadata
             images_metadata[image_filename] = {"image_type": classification}
 
+            # add caption to image with llava
+            caption = llava.caption_image(image_filepath)
+            images_metadata[image_filename]["caption"] = caption
+
             # execute the following code only if the classification is "city"
             if classification != "concrete":
                 continue
@@ -125,6 +130,13 @@ if __name__ == "__main__":
                     image_dir, f"{damage_images_dir}/{damage_category}.png"
                 )
                 damage_image.save(damage_image_filepath)
+
+            # describe damages in image with llava
+            caption = llava.caption_image(
+                image_filepath,
+                context="Describe in detail any damages to the structure.",
+            )
+            images_metadata[image_filename]["damages"]["caption"] = caption
 
         # write images metadata to file
         metadata_filepath = os.path.join(image_dir, "metadata.json")
