@@ -124,7 +124,7 @@ class Dacl:
     def _get_mask_area(self, mask: List[List[float]]):
         return sum(sum(row) for row in mask)
 
-    def inference(self, image: Image.Image, confidence=0.7, alpha_factor=0.6):
+    def inference(self, image: Image.Image, confidence=0.5, alpha_factor=0.6):
         # preprocess images
         background = self._resize_image(image)
         image = self._preprocess_image(image)

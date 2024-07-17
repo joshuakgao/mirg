@@ -95,7 +95,7 @@ if __name__ == "__main__":
             # get list of damage segmentation images by category
             logger.log(f"Saving damage images:{image_filepath}")
             damages = dacl.assess_damage(
-                image, confidence=0.4, min_mask_size=13107  # 5% of a 512x512 image
+                image, confidence=0.7, min_mask_size=3000
             )  # (damage_image, mask, category)
 
             # create damages dict
