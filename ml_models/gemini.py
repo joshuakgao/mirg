@@ -15,6 +15,7 @@ from PIL import Image
 
 class Gemini:
     def __init__(self):
+        print(os.getenv("GEMINI_KEY"))
         genai.configure(api_key=os.getenv("GEMINI_KEY"))
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
