@@ -9,7 +9,7 @@ sys.path.append(
 )  # for importing utils
 from ml_models.clip import clip
 from ml_models.dacl import dacl
-from ml_models.llava import llava
+from ml_models.gemini import gemini
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
@@ -24,9 +24,6 @@ def check_if_downloads_exist():
         os.path.join(ROOT_DIR, "data/public_inspection_reports/data"),
     ]
     check_files_and_directories(required_file_paths, non_empty_dirs)
-
-
-def remove_image_duplicates(): ...
 
 
 if __name__ == "__main__":
@@ -44,7 +41,7 @@ if __name__ == "__main__":
 
         # convert pdf inpsection report to md and save images to images/ dir
         file_path = os.path.join(reports_dir, file_name)
-        report_dir = convert_pdf_to_md(file_path, paginate=False)
+        report_dir = convert_pdf_to_md(file_path, paginate=True)
 
         image_dir = os.path.join(report_dir, "images")
         images_metadata = {}
@@ -85,58 +82,19 @@ if __name__ == "__main__":
             images_metadata[image_filename] = {"image_type": classification}
 
             # add caption to image with llava
-            caption = llava.caption_image(image_filepath)
+            caption = gemini.caption_image(image)
             images_metadata[image_filename]["caption"] = caption
 
             # execute the following code only if the classification is "city"
             if classification != "concrete":
                 continue
 
-            # get list of damage segmentation images by category
-            logger.log(f"Saving damage images:{image_filepath}")
-            damages = dacl.assess_damage(
-                image, confidence=0.7, min_mask_size=3000
-            )  # (damage_image, mask, category)
-
-            # create damages dict
-            images_metadata[image_filename]["damages"] = {}
-
-            # add damage categories to image metadata
-            images_metadata[image_filename]["damages"]["categories"] = [
-                damage_category for _, _, damage_category in damages
-            ]
-
-            # add damage masks to image metadata
-            for _, mask, damage_category in damages:
-                images_metadata[image_filename]["damages"][
-                    damage_category
-                ] = mask.tolist()
-
-            # save damage images to new dir under images dir
-            for damage_image, _, damage_category in damages:
-                # create dir for damage assetsment images
-                image_basename = os.path.basename(image_filename)
-                image_name_without_extension = os.path.splitext(image_basename)[
-                    0
-                ]  # inspection_report
-                damage_images_dir = os.path.join(
-                    image_dir, image_name_without_extension
-                )
-                if not os.path.exists(damage_images_dir):
-                    os.makedirs(damage_images_dir)
-
-                # save damage image
-                damage_image_filepath = os.path.join(
-                    image_dir, f"{damage_images_dir}/{damage_category}.png"
-                )
-                damage_image.save(damage_image_filepath)
-
             # describe damages in image with llava
-            caption = llava.caption_image(
-                image_filepath,
+            caption = gemini.caption_image(
+                image,
                 context="Describe in detail any damages to the structure.",
             )
-            images_metadata[image_filename]["damages"]["caption"] = caption
+            images_metadata[image_filename]["damages"] = caption
 
         # write images metadata to file
         metadata_filepath = os.path.join(image_dir, "metadata.json")

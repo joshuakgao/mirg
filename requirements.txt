@@ -9,5 +9,3 @@ matplotlib
 transformers
 markdownify
 psutil
-torch 
-torchvision

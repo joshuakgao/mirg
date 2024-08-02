@@ -7,6 +7,7 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from utils.logger import logger
+from utils.rate_limiter import RateLimiter
 
 # for typing
 from typing import List, Union
@@ -15,15 +16,28 @@ from PIL import Image
 
 class Gemini:
     def __init__(self):
-        print(os.getenv("GEMINI_KEY"))
+        self.rate_limiter = RateLimiter(max_calls=15, period=60)  # 15 calls per minute
         genai.configure(api_key=os.getenv("GEMINI_KEY"))
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     def query(self, query: List[Union[Image.Image, str]]):
+        self.rate_limiter.acquire()
         logger.log("Querying gemini api...")
 
         response = self.model.generate_content(query)
         return response.text
+
+    def caption_image(
+        self,
+        image: Image.Image,
+        context: str = "Describe in detail what is in this image",
+    ):
+        self.rate_limiter.acquire()
+        logger.log("Captioning image...")
+
+        caption = self.model.generate_content([context, image])
+        print(caption)
+        return caption.text
 
 
 gemini = Gemini()
