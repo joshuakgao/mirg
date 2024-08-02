@@ -8,7 +8,6 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
 from ml_models.clip import clip
-from ml_models.dacl import dacl
 from ml_models.gemini import gemini
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
@@ -67,10 +66,8 @@ if __name__ == "__main__":
                 "logo",
                 "blank",
             ]
-            probs = clip.image_classification(image, classes)
+            classification = clip.image_classification(image, classes)
 
-            # Find the class with the highest probability
-            classification = max(zip(probs, classes))[1]
             logger.log(classification)
 
             # delete images that are nothing

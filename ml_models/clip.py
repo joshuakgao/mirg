@@ -61,18 +61,19 @@ class Clip:
 
     def image_classification(self, image: Image.Image, classes: List[str]):
         image = self.preprocess(image).unsqueeze(0).to(self.device)
-        classes = self.tokenizer(classes).to(self.device)
+        class_embeddings = self.tokenizer(classes).to(self.device)
 
         with torch.no_grad():
             image_features = self.model.encode_image(image)
-            text_features = self.model.encode_text(classes)
+            text_features = self.model.encode_text(class_embeddings)
 
             image_features /= image_features.norm(dim=-1, keepdim=True)
             text_features /= text_features.norm(dim=-1, keepdim=True)
 
             text_probs = (100.0 * image_features @ text_features.T).softmax(dim=-1)
+            classification = max(zip(text_probs[0], classes))[1]
 
-        return text_probs[0]
+        return classification
 
 
 clip = Clip("G-14")
@@ -85,4 +86,5 @@ if __name__ == "__main__":
     print(images_features)  # list of 512x1 vectors
     print(text_features)  # list of 512x1 vectors
 
-    clip.image_classification(img, ["reality", "document"])
+    classficiation = clip.image_classification(img, ["concrete", "document"])
+    print(classficiation)
