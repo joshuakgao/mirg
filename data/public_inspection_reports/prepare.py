@@ -13,6 +13,8 @@ from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
 from utils.media.file_validation import check_files_and_directories
+from utils.api_calling.retry import retry
+
 
 process = psutil.Process()
 
@@ -40,7 +42,7 @@ if __name__ == "__main__":
 
         # convert pdf inpsection report to md and save images to images/ dir
         file_path = os.path.join(reports_dir, file_name)
-        report_dir = convert_pdf_to_md(file_path, paginate=True)
+        report_dir = convert_pdf_to_md(file_path, paginate=False)
 
         image_dir = os.path.join(report_dir, "images")
         images_metadata = {}
@@ -78,8 +80,11 @@ if __name__ == "__main__":
             # add result to metadata
             images_metadata[image_filename] = {"image_type": classification}
 
-            # add caption to image with llava
-            caption = gemini.caption_image(image)
+            # add short caption to image by parsing file name
+            # we do this to avoid calling an llm twice for a short caption
+            caption = image_filename.split("_")
+            caption.pop()  # remove uuid and file extension
+            caption = " ".join(caption)  # convert list of strings to string
             images_metadata[image_filename]["caption"] = caption
 
             # execute the following code only if the classification is "city"

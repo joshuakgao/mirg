@@ -8,13 +8,11 @@ sys.path.append(
 from paths import ROOT_DIR
 
 # from ml_models.gemma2 import gemma2
-from ml_models.llama3 import llama3
+from ml_models.gemini import gemini
 
 
 print("Getting report images...")
-doc_dir = os.path.join(
-    ROOT_DIR, "data/inspection_reports/data/12-085-C002-08-052_RTInsp_2023-10"
-)
+doc_dir = os.path.join(ROOT_DIR, "data/public_inspection_reports/data/2022-07-20_00020")
 images_dir = os.path.join(doc_dir, "images")
 
 with open(images_dir + "/metadata.json", "r") as f:
@@ -23,32 +21,19 @@ with open(images_dir + "/metadata.json", "r") as f:
 
 image_data = []
 for image_name, data in images_metadata.items():
-    data_str = ""
-    data_str = "Image Name: " + image_name + "\n" + "Image Caption: " + data["caption"]
+    if data["image_type"] != "concrete":
+        continue
 
-    if data["image_type"] == "concrete":
-        data_str += " " + data["damages"]["caption"]
+    data_str = ""
+    data_str = "Image Name: " + image_name + "\n" + "Damages: " + data["damages"]
 
     image_data.append(data_str)
 
 
-print(len(image_data))
-print(image_data)
 print("Generating markdown inspection report...")
-instructions = "Generate a new inspection report as a markdown document a civil engineer would need to create given the following image names and their description. Add the image names into the markdown file."
-response = llama3.query(
-    messages=[
-        # {
-        #     "role": "system",
-        #     "content": instructions,
-        # },
-        {
-            "role": "user",
-            "content": instructions + "\n\n".join(image_data),
-        },
-    ]
-)
+instructions = "Generate a new inspection report as a markdown document a civil engineer would need to create given the following image names and their description."
+response = gemini.query([instructions] + image_data)
 
-f = open("generated_inspection_report.md", "w+")
+f = open(os.path.join(images_dir, "generated_report.md"), "w+")
 f.write(response)
 f.close()

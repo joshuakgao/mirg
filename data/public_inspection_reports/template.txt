@@ -1,0 +1,23 @@
+[Company Logo]
+
+*Route* [Route number]
+*Structure* [Structure number]
+[Location]
+*Team Lead:* [Team lead name], *Inspection Date:* [Inspection date]
+
+![Image of Structure](images/image_of_structure)
+
+Town: [Town]
+District: [County]
+Owner: [Owner Agency]
+Maintenance Responsibility: [Owner Agency]
+
+![Map Image](images/map_image)
+[Longitude, Latitude]
+
+[Table of structure information]
+
+[List of structure part and their damage assessment]
+
+![List of structure images](images/image_name)
+[Their description]

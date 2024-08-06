@@ -3,6 +3,7 @@ import sys
 import re
 import markdownify
 import pymupdf
+from PIL import Image
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
@@ -11,6 +12,7 @@ from utils.media.md import convert_md_base64_images_to_filepath_images
 from utils.media.image import find_duplicate_images
 from paths import ROOT_DIR
 from utils.logger import logger
+from ml_models.gemini import gemini
 
 
 def replace_image_paths(md: str, old_image_path: str, new_image_path: str):
@@ -83,6 +85,17 @@ def convert_pdf_to_md(file_path: str, paginate=False):
         md_page_file_path = report_dir + f"/page{i+1}.md"
         with open(md_page_file_path, "w") as f:
             f.write(page_md)
+
+    # rename images from hash to descriptive name
+    for image_name in os.listdir(images_dir):
+        image_path = os.path.join(images_dir, image_name)
+        image = Image.open(image_path)
+        new_image_filename = gemini.caption_image(
+            image,
+            context="Provide a short caption describing this image in snake case.",
+        )
+        new_image_path = os.path.join(images_dir, new_image_filename + ".png")
+        os.rename(image_path, new_image_path)
 
     return report_dir
 

@@ -11,7 +11,6 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing paths
 from ml_models.clip import clip
-from utils.logger import logger
 
 
 def download_image(url: str):
@@ -39,6 +38,9 @@ def save_base64_image(base64_str: str, output_dir: str, image_format="jpeg"):
 
     # Decode the base64 string
     image_data = base64.b64decode(base64_str)
+
+    # Convert image data bytes to PIL Image
+    image = Image.open(io.BytesIO(image_data))
 
     # Generate a unique filename
     img_filename = f"image_{hash(base64_str)}.{image_format}"

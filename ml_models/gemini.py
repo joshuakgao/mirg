@@ -7,7 +7,7 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from utils.logger import logger
-from utils.rate_limiter import RateLimiter
+from utils.api_calling.rate_limiter import RateLimiter
 
 # for typing
 from typing import List, Union
@@ -36,7 +36,6 @@ class Gemini:
         logger.log("Captioning image...")
 
         caption = self.model.generate_content([context, image])
-        print(caption)
         return caption.text
 
 
