@@ -6,11 +6,35 @@ import requests
 from PIL import Image, UnidentifiedImageError
 import faiss
 import pprint as pp
+from typing import Union
+from io import BytesIO
+
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing paths
-from ml_models.clip import clip
+
+
+def load_image(image: Union[str, Image.Image]):
+    if isinstance(image, str):
+        is_url = image.startswith(("http://", "https://"))
+        if is_url:
+            # If input_data is a URL, download the image
+            response = requests.get(image)
+            response.raise_for_status()  # Check for HTTP errors
+            image = Image.open(BytesIO(response.content))
+        elif os.path.isfile(image):
+            # If image is a file path, open the image
+            image = Image.open(image)
+        else:
+            raise ValueError("Input string must be a valid file path or URL")
+    elif isinstance(image, Image.Image):
+        # If image is already an Image object, use it directly
+        image = image
+    else:
+        raise ValueError("Input must be a file path or a PIL Image object")
+
+    return image
 
 
 def download_image(url: str):
@@ -65,6 +89,8 @@ def convert_image_to_base64(image: Image.Image):
 
 
 def find_duplicate_images(images_dir: str, threshold=0.9):
+    from ml_models.clip import clip
+
     # read images
     images = []  # [( PIL_IMAGE, dimensions as (w,h), file_path)]
     for filename in os.listdir(images_dir):
@@ -146,7 +172,12 @@ def find_duplicate_images(images_dir: str, threshold=0.9):
 
 
 if __name__ == "__main__":
-    deletions = find_duplicate_images(
-        "/home/jkgao/Documents/GitHub/mu-rag/data/inspection_reports/data/12-020-2105-02-005_RTInsp_2024-01/images"
-    )
-    pp.pprint(deletions)
+    url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    image = load_image(url)
+    image.show()
+    image.close()
+
+    image_path = "/home/jkgao/Documents/GitHub/mu-rag/assets/bridge_damage.jpg"
+    image = load_image(image_path)
+    image.show()
+    image.close()
