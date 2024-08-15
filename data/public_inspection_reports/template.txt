@@ -15,9 +15,32 @@ Maintenance Responsibility: [Owner Agency]
 ![Map Image](images/map_image)
 [Longitude, Latitude]
 
-[Table of structure information]
+# Only use the provided json for the following tables. Include row numbers
+[A vertical table of "IDENTIFICATION" with the following rows using NBI Data: 1 State Names, 8 Structure NUmber, 5 Inventory Route, 2, Highway Agency District, 3 County Code, 4 Place Code, 6 Features Intersected, 7 Facility Carried, 9 Location, 11 Mile Point, 12 Base Highway Network, 13 LRS Inventory Rte & Subrte, 16 Latitude, 17 Longitude, 98 Border Bridge State Code, 99 Border Bridge Structure No.]
+
+[A vertical table of "STRUCTURE TYPE AND MATERIAL" with the following rows using NBI Data: 43 Main Structure Type (Concat the numbers from the next two rows), 43A Main Structure Material, 43B Main Structure Type, 44 Apporach Structure Type (Concat the values from the next two rows), 44A Approach Structure Material, 44B Approach Structure Type, 45 No. of Spans in Main Unit, 46 No. of Approach Spans, 107 Deck Structure Type', 108 Wearing Surface/Protective System (Blank), 108A Type of Wearing Surface, 108B Type of Membrane, 108C Type of Deck Protection]
+
+[A vertical table of "AGE AND SERVICE" with the following rows using NBI Data: 27 Year Built, 106 Year Reconstructed, 42 Type of Service (Concat the numbers from the next two rows), 42A Type of Service On, 42B Type of Service Under, 28 Lane (Blank), 28A Lane On, 28B Lane Under, 29 Average Daily Traffic, 30 Year of ADT, 109 Truck ADT', 19 Bypass Detour Length]
+
+[A vertical table of "GEOMETRIC DATA" with the following rows using NBI Data: 48 Length of Maximum Span, 49 Structure Length, 50A Curb or Sidewalk Width Left, 50B Curb or Sidewalk Width Right, 51 Bridge Roadway Width Curb to Curb, 52 Deck Width Out to Out, 32 Approach Roadway Width (W/Shoulders), 33 Bridge Median, Skew, 35 Structure Flared, 10 Inventory Route Min Vert Clear, 47 Inventory Route Total Horiz Clear, 53 Min Vert Clear Over Bridge Rdwy, 54 Min Vert Underclear, 54 Min Vert Underclear Ref, 55 Min Lat Underclear RT, 55 Min Lat Underclear RT Ref, 56 Min Lat Underclear LT]
+
+[A vertical table of "NAVIGATION DATA" with the following rows using NBI Data: 38 Navigation Control, 111 Pier Protection, 39 Navigation Vertical Clearance, 116 Vert-Lift Bridge Nav Min Vert Clear, 40 Navigation Horizontal Clearance]
+
+[A vertical table of "CLASSIFICATION" with the following rows using NBI Data: 112 NBIS Bridge Length, 104 Highway System, 26 Functional Class, 100 Defense Highway, 101 Parallel Structure, 102 Direction of Traffic, 103 Temporary Structure, 105 Federal Lands Highways, 110 Designated national Network, 20 Toll, 21 Maintain, 22 Owner, 37 Historical Significance]
+
+[A vertical table of "CONDITION" with the following rows using NBI Data: 58 Deck, 59 Superstructure, 60 Substructure, 61 Channel & Channel Protection, 62 Culverts]
+
+[A vertical table of "LOAD RATING AND POSTING" with the following rows using NBI Data: 31 Design Load, 63 Operating Rating Method, 64 Operating Rating (Blank), 64 Operating Rating Type, 64 Operating Rating, 65 Inventory Rating Method, 66 Inventory Rating Type (Blank), 66 Inventory Rating, 70 Bridge Posting, 41 Structure Open/Posted/Closed]
+
+[A vertical table of "APPRAISAL" with the following rows using NBI Data: 67 Structural Evaluation, 68 Deck Geometry, 69 Clearances, Vertical/Horizontal, 71 Waterway Adequacy, 72 Approach Roadway Alignment, 36A Bridge Railings, 36B Transitions, 36C Approach Guardrail, 36D Approach Guardrail Ends, 113 Scour Critical Bridges]
+
+[A vertical table of "PROPOSED IMPROVEMENTS" with the following rows using NBI Data: 75 Type of Work, 76 Length of Structure Improvement, 94 Bridge Improvement Cost in Thousands, 95 Roadway Improvement Cost in Thousands, 96 Total Project Cost in Thousands, 97 Year of Improvement Cost Estimate, 114 Future ADT, 115 Year of Future ADT]
+
+[A vertical table of "INSPECTIONS", 90 Inspection Date, 91 Frequency, 92 Critical Feature Inspection (Blank), A: Fracture Critical Detail, B: Underwater Inspection, C: Other Special Inspection]
 
 [List of structure part and their damage assessment]
 
 ![List of structure images](images/image_name)
 [Their description]
+
+[List recommended maintenance]
