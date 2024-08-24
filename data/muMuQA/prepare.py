@@ -51,7 +51,8 @@ def pre_encode_split(split, path, indexes):
             # encode image and text with clip
             image = download_image(doc["image"])
             text = doc["context"] + doc["caption"]  # build text data
-            image_embeddings, text_embeddings = clip.encode(images=[image], text=[text])
+            image_embeddings = clip.encode_images([image])
+            text_embeddings = clip.encode_text([text])
 
             # save embeddings to dataset
             split[i]["image_embedding"] = image_embeddings[0].tolist()

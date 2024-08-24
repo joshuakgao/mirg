@@ -9,9 +9,8 @@ def mu_rag(
     query_image: Image.Image, query_text: str, faiss_index: IndexFlatIP, k=3
 ) -> List[int]:
     # get image and text embeddings
-    query_image_embeddings, query_text_embeddings = clip.encode(
-        images=[query_image], text=[query_text]
-    )
+    query_image_embeddings = clip.encode_images([query_image])
+    query_text_embeddings = clip.encode_text([query_text])
     query_embedding = np.concatenate(
         (query_image_embeddings[0], query_text_embeddings[0])
     )

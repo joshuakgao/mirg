@@ -41,18 +41,6 @@ class Clip:
 
         return model, preprocess_train, tokenizer
 
-    def encode(self, images: List[Image.Image] = [], text: List[str] = []):
-        images = [self.preprocess(image) for image in images]
-
-        images_input = torch.tensor(np.stack(images)).to(self.device)
-        text_input = self.tokenizer(text).to(self.device)
-
-        with torch.no_grad():
-            # Encode images and text
-            images_features = self.model.encode_image(images_input)
-            text_features = self.model.encode_text(text_input)
-        return images_features, text_features
-
     def encode_images(self, images: List[Image.Image] = []):
         embeddings = []
         for image in images:
@@ -93,10 +81,9 @@ clip = Clip("G-14")
 
 if __name__ == "__main__":
     img = Image.open(os.path.join(ROOT_DIR, "assets/bridge_damage.jpg"))
-    images_features, text_features = clip.encode(
-        images=[img], text=["Some string here", "Another string"]
-    )
-    print(images_features)
+    image_features = clip.encode_images([img])
+    text_features = clip.encode_text(["Some string here", "Another string"])
+    print(image_features)
     print(text_features)
 
     classification = clip.image_classification(img, ["concrete", "document"])
