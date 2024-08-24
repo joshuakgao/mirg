@@ -8,6 +8,7 @@ import faiss
 import pprint as pp
 from typing import Union
 from io import BytesIO
+import torch
 
 
 sys.path.append(
@@ -15,7 +16,7 @@ sys.path.append(
 )  # for importing paths
 
 
-def load_image(image: Union[str, Image.Image]):
+def load_image(image: Union[str, Image.Image], to_bytes=False):
     if isinstance(image, str):
         is_url = image.startswith(("http://", "https://"))
         if is_url:
@@ -33,6 +34,18 @@ def load_image(image: Union[str, Image.Image]):
         image = image
     else:
         raise ValueError("Input must be a file path or a PIL Image object")
+
+    if to_bytes:
+        # Create a BytesIO object
+        img_bytes = BytesIO()
+
+        # Save the PIL image to the BytesIO object in the desired format
+        image.save(img_bytes, format="JPEG")
+        image.close()
+
+        # Get the byte data from the BytesIO object
+        img_bytes.seek(0)  # Move to the beginning of the BytesIO object
+        image = img_bytes.getvalue()
 
     return image
 
@@ -92,7 +105,7 @@ def find_duplicate_images(images_dir: str, threshold=0.9):
     from ml_models.clip import clip
 
     # read images
-    images = []  # [( PIL_IMAGE, dimensions as (w,h), file_path)]
+    images = []  # [(image_path, image_dimension)]
     for filename in os.listdir(images_dir):
         # ignore non-image files
         if not filename.endswith(("png", "jpg", "jpeg")):
@@ -107,10 +120,13 @@ def find_duplicate_images(images_dir: str, threshold=0.9):
         image.close()
 
     # get embeddings for all images
-    images_embeddings, _ = clip.encode(
-        images=[Image.open(path) for path, dims in images]
-    )
+    print("Cuda memory used:", torch.cuda.memory_allocated() / (1024**2))
+    image_paths = [path for path, _ in images]
+    images_embeddings = clip.encode_images(images=image_paths)
     images_embeddings = images_embeddings.to("cpu").numpy()
+    torch.cuda.empty_cache()
+    print("Cuda memory used:", torch.cuda.memory_allocated() / (1024**2))
+
     # print(images_embeddings)
     faiss.normalize_L2(images_embeddings)
 

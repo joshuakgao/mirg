@@ -2,14 +2,17 @@ import os
 import sys
 from typing import Sequence
 import ollama
-from ollama import Message
+from ollama import Message, Options
 from typing import Literal
+from PIL import Image
+from typing import Union
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 )  # for importing paths
 from paths import ROOT_DIR
 from utils.logger import logger
+from utils.media.image import load_image
 
 
 class Llava:
@@ -24,29 +27,38 @@ class Llava:
         logger.log(
             f"Pulling {model} model. This may take a while if not already downloaded..."
         )
-        ollama.pull(model=model)  # download model if not already downloaded
+        # ollama.pull(model=model)  # download model if not already downloaded
 
-    def query(self, messages: Sequence[Message]):
+    def query(
+        self,
+        messages: Sequence[Message],
+        options: Options,
+    ):
         logger.log(f"Querying {self.model}...")
 
-        response = ollama.chat(model=self.model, messages=messages)
+        response = ollama.chat(model=self.model, messages=messages, options=options)
         return response["message"]["content"]
 
     def caption_image(
-        self, filepath: str, context: str = "Describe in detail what is in this image"
+        self,
+        image: Union[str, Image.Image],
+        context: str = "Describe in detail what is in this image",
+        options: Options = {},
     ):
-        logger.log(f"Captioning image: {filepath}")
+        image = load_image(image, to_bytes=True)
 
         caption = self.query(
             messages=[
                 {"role": "system", "content": context},
-                {"role": "user", "content": "Image:", "images": [filepath]},
-            ]
+                {"role": "user", "content": "Image:", "images": [image]},
+            ],
+            options=options,
         )
+
         return caption
 
 
-llava = Llava("llava")
+llava = Llava("llava:34b")
 
 if __name__ == "__main__":
     image = os.path.join(ROOT_DIR, "assets/bridge_damage.jpg")

@@ -10,9 +10,12 @@ sys.path.append(
 )  # for importing paths
 from utils.media.md import convert_md_base64_images_to_filepath_images
 from utils.media.image import find_duplicate_images
+from utils.media.string import to_snake_case
 from paths import ROOT_DIR
 from utils.logger import logger
-from ml_models.gemini import gemini
+
+# from ml_models.gemini import gemini
+from ml_models.llava import llava
 
 
 def replace_image_paths(md: str, old_image_path: str, new_image_path: str):
@@ -44,7 +47,6 @@ def convert_pdf_to_md(file_path: str, paginate=False):
         md = markdownify.markdownify(page)
         paginated_pdf_md.append(md)
 
-    # create dir with pdf name in given pdf dir
     file_name = os.path.basename(file_path)  # inspection_report.pdf
     file_name_without_extension = os.path.splitext(file_name)[0]  # inspection_report
     parent_dir = os.path.dirname(file_path)  # ../
@@ -63,6 +65,7 @@ def convert_pdf_to_md(file_path: str, paginate=False):
 
     # replace duplicate images
     duplicate_groups = find_duplicate_images(images_dir)
+
     for i, page_md in enumerate(paginated_pdf_md):
         for replacement_image, to_be_removed_images in duplicate_groups.items():
             replacement_image_relative_path = os.path.basename(replacement_image)
@@ -88,14 +91,20 @@ def convert_pdf_to_md(file_path: str, paginate=False):
 
     # rename images from hash to descriptive name
     for image_name in os.listdir(images_dir):
-        image_path = os.path.join(images_dir, image_name)
-        image = Image.open(image_path)
-        new_image_filename = gemini.caption_image(
-            image,
-            context="Provide a short caption describing this image in snake case.",
-        )
-        new_image_path = os.path.join(images_dir, new_image_filename + ".png")
-        os.rename(image_path, new_image_path)
+        try:
+            image_path = os.path.join(images_dir, image_name)
+            image = Image.open(image_path)
+            new_image_filename = llava.caption_image(
+                image,
+                context="Provide an extremely short caption describing this image in snake case.",
+                options={"num_predict": 20, "temperature": 0},
+            )
+            image.close()
+            new_image_filename = to_snake_case(new_image_filename[18:])
+            new_image_path = os.path.join(images_dir, new_image_filename + ".png")
+            os.rename(image_path, new_image_path)
+        except:
+            continue
 
     return report_dir
 
