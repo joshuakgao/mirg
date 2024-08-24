@@ -33,9 +33,11 @@ if __name__ == "__main__":
     reports_dir = os.path.join(ROOT_DIR, "data/public_inspection_reports/data")
     report_dirs = os.listdir(reports_dir)
     for report_dir in report_dirs:
-        print(report_dir)
         report_dir = os.path.join(reports_dir, report_dir)
         if not os.path.isdir(report_dir):
+            continue
+
+        if report_dir == "input":
             continue
 
         for i, file_name in enumerate(os.listdir(report_dir)):

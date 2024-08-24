@@ -58,7 +58,7 @@ class Llava:
         return caption
 
 
-llava = Llava("llava:34b")
+llava = Llava("llava")
 
 if __name__ == "__main__":
     image = os.path.join(ROOT_DIR, "assets/bridge_damage.jpg")

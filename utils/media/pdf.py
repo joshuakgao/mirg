@@ -16,6 +16,7 @@ from utils.logger import logger
 
 # from ml_models.gemini import gemini
 from ml_models.llava import llava
+from ml_models.gemini import gemini
 
 
 def replace_image_paths(md: str, old_image_path: str, new_image_path: str):
@@ -94,13 +95,20 @@ def convert_pdf_to_md(file_path: str, paginate=False):
         try:
             image_path = os.path.join(images_dir, image_name)
             image = Image.open(image_path)
-            new_image_filename = llava.caption_image(
+            image_caption = llava.caption_image(
                 image,
-                context="Provide an extremely short caption describing this image in snake case.",
-                options={"num_predict": 20, "temperature": 0},
+                context="Describe this image in detail",
+                options={"num_predict": 100},
             )
             image.close()
-            new_image_filename = to_snake_case(new_image_filename[18:])
+
+            new_image_filename = gemini.query(
+                [
+                    "Convert the following description of an image to a short file name in snake case:",
+                    image_caption,
+                ]
+            )
+
             new_image_path = os.path.join(images_dir, new_image_filename + ".png")
             os.rename(image_path, new_image_path)
         except:

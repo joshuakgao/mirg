@@ -25,7 +25,7 @@ class Gemini:
         logger.log("Querying gemini api...")
 
         response = self.model.generate_content(query)
-        return response.text
+        return response.text.strip()
 
     def caption_image(
         self,
@@ -36,7 +36,7 @@ class Gemini:
         logger.log("Captioning image...")
 
         caption = self.model.generate_content([context, image])
-        return caption.text
+        return caption.text.strip()
 
 
 gemini = Gemini()
