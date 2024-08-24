@@ -10,7 +10,6 @@ sys.path.append(
 )  # for importing paths
 from utils.media.md import convert_md_base64_images_to_filepath_images
 from utils.media.image import find_duplicate_images
-from utils.media.string import to_snake_case
 from paths import ROOT_DIR
 from utils.logger import logger
 
@@ -84,16 +83,12 @@ def convert_pdf_to_md(file_path: str, paginate=False):
                     to_be_removed_image_relative_path,
                     replacement_image_relative_path,
                 )
-
-        # write md to doc dir
-        md_page_file_path = report_dir + f"/page{i+1}.md"
-        with open(md_page_file_path, "w") as f:
-            f.write(page_md)
+        paginated_pdf_md[i] = page_md
 
     # rename images from hash to descriptive name
-    for image_name in os.listdir(images_dir):
+    for image_filename in os.listdir(images_dir):
         try:
-            image_path = os.path.join(images_dir, image_name)
+            image_path = os.path.join(images_dir, image_filename)
             image = Image.open(image_path)
             image_caption = llava.caption_image(
                 image,
@@ -102,17 +97,33 @@ def convert_pdf_to_md(file_path: str, paginate=False):
             )
             image.close()
 
-            new_image_filename = gemini.query(
-                [
-                    "Convert the following description of an image to a short file name in snake case:",
-                    image_caption,
-                ]
+            new_image_filename = (
+                gemini.query(
+                    [
+                        "Convert the following description of an image to a short file name in snake case:",
+                        image_caption,
+                    ]
+                )
+                + ".png"
             )
 
-            new_image_path = os.path.join(images_dir, new_image_filename + ".png")
+            new_image_path = os.path.join(images_dir, new_image_filename)
             os.rename(image_path, new_image_path)
+
+            # rename image in md string
+            for i, page_md in enumerate(paginated_pdf_md):
+                page_md = replace_image_paths(
+                    page_md, image_filename, new_image_filename
+                )
+                paginated_pdf_md[i] = page_md
         except:
             continue
+
+    # write md to doc dir
+    for i, page_md in enumerate(paginated_pdf_md):
+        md_page_file_path = report_dir + f"/page{i+1}.md"
+        with open(md_page_file_path, "w") as f:
+            f.write(page_md)
 
     return report_dir
 
