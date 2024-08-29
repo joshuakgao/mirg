@@ -1,21 +1,22 @@
-[Company Logo]
+# Bridge Inspection Report
+
+[Embedded image of logo]
 
 *Route* [Route number]
 *Structure* [Structure number]
 [Location]
 *Team Lead:* [Team lead name], *Inspection Date:* [Inspection date]
 
-![Image of Structure](images/image_of_structure)
+[Embedded image of bridge scene]
 
 Town: [Town]
 District: [County]
 Owner: [Owner Agency]
 Maintenance Responsibility: [Owner Agency]
 
-![Map Image](images/map_image)
+[Embedded image of map]
 [Longitude, Latitude]
 
-# Only use the provided json for the following tables. Include row numbers
 [A vertical table of "IDENTIFICATION" with the following rows using NBI Data: 1 State Names, 8 Structure NUmber, 5 Inventory Route, 2, Highway Agency District, 3 County Code, 4 Place Code, 6 Features Intersected, 7 Facility Carried, 9 Location, 11 Mile Point, 12 Base Highway Network, 13 LRS Inventory Rte & Subrte, 16 Latitude, 17 Longitude, 98 Border Bridge State Code, 99 Border Bridge Structure No.]
 
 [A vertical table of "STRUCTURE TYPE AND MATERIAL" with the following rows using NBI Data: 43 Main Structure Type (Concat the numbers from the next two rows), 43A Main Structure Material, 43B Main Structure Type, 44 Apporach Structure Type (Concat the values from the next two rows), 44A Approach Structure Material, 44B Approach Structure Type, 45 No. of Spans in Main Unit, 46 No. of Approach Spans, 107 Deck Structure Type', 108 Wearing Surface/Protective System (Blank), 108A Type of Wearing Surface, 108B Type of Membrane, 108C Type of Deck Protection]
@@ -40,7 +41,7 @@ Maintenance Responsibility: [Owner Agency]
 
 [List of structure part and their damage assessment]
 
-![List of structure images](images/image_name)
+[A series of embeded images of other structural images]
 [Their description]
 
 [List recommended maintenance]

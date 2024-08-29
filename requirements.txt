@@ -9,3 +9,6 @@ matplotlib
 transformers
 markdownify
 psutil
+torch
+faiss-cpu
+pandas
