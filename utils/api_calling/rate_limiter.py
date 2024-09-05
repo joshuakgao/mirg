@@ -1,5 +1,4 @@
 import time
-from utils.logger import logger
 
 
 class RateLimiter:
@@ -8,7 +7,7 @@ class RateLimiter:
         self.period = period
         self.calls = []
 
-    def acquire(self):
+    def acquire(self, label=""):
         current_time = time.time()
 
         # Remove calls that are outside the period window
@@ -16,7 +15,9 @@ class RateLimiter:
 
         if len(self.calls) >= self.max_calls:
             sleep_time = self.period - (current_time - self.calls[0])
-            logger.log(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds...")
+            print(
+                f"Rate limit reached for {label}. Sleeping for {sleep_time:.2f} seconds..."
+            )
             time.sleep(sleep_time)
 
         self.calls.append(time.time())

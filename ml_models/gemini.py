@@ -1,17 +1,17 @@
 import os
 import sys
+
 import google.generativeai as genai
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-)  # for importing paths
-from paths import ROOT_DIR
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from typing import Union
+
+from google.generativeai.types import HarmBlockThreshold, HarmCategory
+from PIL import Image
+
+from utils.media.image import load_image
 from utils.logger import logger
 from utils.api_calling.rate_limiter import RateLimiter
-
-# for typing
-from typing import List, Union
-from PIL import Image
 
 
 class Gemini:
@@ -20,29 +20,41 @@ class Gemini:
         genai.configure(api_key=os.getenv("GEMINI_KEY"))
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
-    def query(self, query: List[Union[Image.Image, str]]):
-        self.rate_limiter.acquire()
-        logger.log("Querying gemini api...")
-
-        response = self.model.generate_content(query)
+    def query(self, query: list[Union[Image.Image, str]]) -> str:
+        response = None
+        while response is None:
+            try:
+                self.rate_limiter.acquire(label="Gemini")
+                response = self.model.generate_content(
+                    query,
+                    safety_settings={
+                        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                        HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                    },
+                )
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt received. Exiting...")
+                sys.exit()
+            except Exception as e:
+                logger.log("Something went wrong with this Gemini call, retrying...")
+                logger.log(e)
         return response.text.strip()
 
     def caption_image(
         self,
-        image: Image.Image,
+        image: Union[Image.Image, str],
         context: str = "Describe in detail what is in this image",
-    ):
-        self.rate_limiter.acquire()
-        logger.log("Captioning image...")
+    ) -> str:
+        self.rate_limiter.acquire(label="Gemini")
 
+        image = load_image(image)
         caption = self.model.generate_content([context, image])
         return caption.text.strip()
 
 
-gemini = Gemini()
-
-
 if __name__ == "__main__":
-    img = Image.open(os.path(ROOT_DIR, "assets/bridge_damage.jpg"))
-    response = gemini.query([img, "Describe the damages"])
+    gemini = Gemini()
+    response = gemini.query(["How old is the sun"])
     print(response)
