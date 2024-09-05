@@ -5,7 +5,6 @@ import sys
 import requests
 from PIL import Image, UnidentifiedImageError
 import faiss
-import pprint as pp
 from typing import Union
 from io import BytesIO
 import torch
@@ -102,7 +101,9 @@ def convert_image_to_base64(image: Image.Image):
 
 
 def find_duplicate_images(images_dir: str, threshold=0.9):
-    from ml_models.clip import clip
+    from ml_models.clip import Clip
+
+    clip = Clip()
 
     # read images
     images = []  # [(image_path, image_dimension)]
@@ -121,8 +122,7 @@ def find_duplicate_images(images_dir: str, threshold=0.9):
 
     # get embeddings for all images
     print("Cuda memory used:", torch.cuda.memory_allocated() / (1024**2))
-    image_paths = [path for path, _ in images]
-    images_embeddings = clip.encode_images(images=image_paths)
+    images_embeddings = torch.stack([clip.embed_image(path) for path, _ in images])
     images_embeddings = images_embeddings.to("cpu").numpy()
     torch.cuda.empty_cache()
     print("Cuda memory used:", torch.cuda.memory_allocated() / (1024**2))

@@ -15,7 +15,9 @@ from utils.logger import logger
 
 # from ml_models.gemini import gemini
 from ml_models.llava import llava
-from ml_models.gemini import gemini
+from ml_models.gemini import Gemini
+
+gemini = Gemini()
 
 
 def replace_image_paths(md: str, old_image_path: str, new_image_path: str):
