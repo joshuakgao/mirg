@@ -9,7 +9,9 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from data.national_bridge_inventory.dataparser import Nbi
-from ml_models.gemini import gemini
+from ml_models.gemini import Gemini
+
+gemini = Gemini()
 
 print("Getting report images...")
 doc_dir = os.path.join(

@@ -1,7 +1,16 @@
 import os
 import re
-from utils.media.image import save_base64_image
+import sys
+import subprocess
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 from PIL import Image
+from utils.media.image import save_base64_image
+
+
+def convert_md_to_pdf(path: str):
+    subprocess.call(["pandoc", path, "-o", "output.pdf"])
 
 
 def convert_md_base64_images_to_filepath_images(
@@ -28,3 +37,8 @@ def convert_md_base64_images_to_filepath_images(
     updated_md_content = base64_img_regex.sub(replace_base64_with_path, md_content)
 
     return updated_md_content
+
+
+convert_md_to_pdf(
+    "/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/input/VT15-00020-CAMBRIDGE/generated_inspection_report.md"
+)

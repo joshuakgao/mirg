@@ -42,9 +42,6 @@ for i, images_dir in enumerate(all_image_dirs):
             report2_images.append(f)
 
 
-with open("input_images.json", "w") as f:
-    json.dump(f)
-
 report1_images = report1_images[7:14]
 report2_images = report2_images[11:28]
 

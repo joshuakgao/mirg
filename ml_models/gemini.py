@@ -16,7 +16,7 @@ from utils.api_calling.rate_limiter import RateLimiter
 
 class Gemini:
     def __init__(self):
-        self.rate_limiter = RateLimiter(max_calls=15, period=60)  # 15 calls per minute
+        self.rate_limiter = RateLimiter(max_calls=5, period=60)  # 15 calls per minute
         genai.configure(api_key=os.getenv("GEMINI_KEY"))
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
@@ -33,25 +33,28 @@ class Gemini:
                         HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
                         HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
                     },
-                )
+                ).text.strip()
             except KeyboardInterrupt:
                 print("KeyboardInterrupt received. Exiting...")
                 sys.exit()
             except Exception as e:
-                logger.log("Something went wrong with this Gemini call, retrying...")
+                logger.log(f"Something went wrong with this Gemini call, retrying...")
                 logger.log(e)
-        return response.text.strip()
+        return response
 
     def caption_image(
         self,
         image: Union[Image.Image, str],
         context: str = "Describe in detail what is in this image",
     ) -> str:
-        self.rate_limiter.acquire(label="Gemini")
+        try:
+            self.rate_limiter.acquire(label="Gemini")
 
-        image = load_image(image)
-        caption = self.model.generate_content([context, image])
-        return caption.text.strip()
+            image = load_image(image)
+            caption = self.query([context, image])
+            return caption
+        except Exception as e:
+            logger.log(e)
 
 
 if __name__ == "__main__":

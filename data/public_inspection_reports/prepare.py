@@ -36,7 +36,7 @@ def full_prepare():
     report_dirs = os.listdir(reports_dir)
     for report_dir in report_dirs:
 
-        if report_dir == "input":
+        if report_dir != "input":
             continue
 
         report_dir = os.path.join(reports_dir, report_dir)
@@ -158,4 +158,5 @@ def pdf_to_image_prepare():
 
 
 if __name__ == "__main__":
-    pdf_to_image_prepare()
+    # pdf_to_image_prepare()
+    full_prepare()

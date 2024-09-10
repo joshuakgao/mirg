@@ -9,7 +9,9 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from data.national_bridge_inventory.dataparser import Nbi
-from ml_models.gemini import gemini
+from ml_models.gemini import Gemini
+
+gemini = Gemini()
 
 structure_number = "200030002008022"
 print("Getting report images...")
@@ -63,8 +65,8 @@ instructions = "Generate a new inspection report following the markdown template
 response = gemini.query(
     query=[instructions]
     + image_data
-    + ["Example:\n", template_md, "\n\nNBI Data:\n", bridge_data] + 
-    ["Past reports:"]
+    + ["Example:\n", template_md, "\n\nNBI Data:\n", bridge_data]
+    + ["Past reports:"]
     + past_report_data
 )
 
