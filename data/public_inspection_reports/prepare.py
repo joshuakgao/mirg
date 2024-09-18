@@ -3,6 +3,8 @@ import sys
 import json
 from PIL import Image
 import psutil
+import ast
+
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
@@ -54,10 +56,47 @@ def full_prepare():
 
             # convert pdf inpsection report to md and save images to images/ dir
             file_path = os.path.join(report_dir, file_name)
-            md_report_dir = convert_pdf_to_md(file_path, paginate=False)
+            md_report_dir = convert_pdf_to_md(file_path, paginate=True)
+
+            # extract the captions of images links
+            images_metadata = {}
+            for i, md_name in enumerate(os.listdir(md_report_dir)):
+                if not md_name.endswith(".md"):
+                    continue
+
+                print(f"Extracting cpations of images links {md_name}")
+                md_path = os.path.join(md_report_dir, md_name)
+                f = open(md_path, "r")
+                md_page = f.read()
+
+                dict_str = (
+                    gemini.query(
+                        query=[
+                            md_page,
+                            "Extract all unique image links and their captions from the markdown file above. Only output as python dict:",
+                        ]
+                    )
+                    .strip("```")
+                    .replace("python", "")
+                )
+
+                parsed_dict = ast.literal_eval(dict_str)
+                images_metadata = {**images_metadata, **parsed_dict}
+                f.close()
+
+            # remove all "images/" from image links, move report caption to dict
+            images_metadata = {
+                key.replace("![Image](", "")
+                .replace(")", "")
+                .replace("images/", ""): value
+                for key, value in images_metadata.items()
+            }
+            images_metadata = {
+                key: {"report_caption": value} for key, value in images_metadata.items()
+            }
+            print(images_metadata)
 
             image_dir = os.path.join(md_report_dir, "images")
-            images_metadata = {}
             for i, image_filename in enumerate(os.listdir(image_dir)):
                 print("Memory used:", process.memory_info().rss / 1000000000)
 
@@ -89,8 +128,12 @@ def full_prepare():
                     os.remove(image_filepath)
                     continue
 
+                # add dict to image key if it doesn't exist
+                if image_filename not in images_metadata:
+                    images_metadata[image_filename] = {}
+
                 # add result to metadata
-                images_metadata[image_filename] = {"image_type": classification}
+                images_metadata[image_filename]["image_type"] = classification
 
                 # add short caption to image by parsing file name
                 # we do this to avoid calling an llm twice for a short caption

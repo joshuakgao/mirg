@@ -16,7 +16,7 @@ from utils.api_calling.rate_limiter import RateLimiter
 
 class Gemini:
     def __init__(self):
-        self.rate_limiter = RateLimiter(max_calls=5, period=60)  # 15 calls per minute
+        self.rate_limiter = RateLimiter(max_calls=15, period=60)  # 15 calls per minute
         genai.configure(api_key=os.getenv("GEMINI_KEY"))
         self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 

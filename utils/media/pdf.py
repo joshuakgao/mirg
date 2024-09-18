@@ -102,12 +102,13 @@ def convert_pdf_to_md(file_path: str, paginate=False):
             new_image_filename = (
                 gemini.query(
                     [
-                        "Convert the following description of an image to a short file name in snake case:",
+                        "Convert the following description of an image to one short file name in snake case:",
                         image_caption,
                     ]
                 )
                 + ".png"
             )
+            print(new_image_filename)
 
             new_image_path = os.path.join(images_dir, new_image_filename)
             os.rename(image_path, new_image_path)

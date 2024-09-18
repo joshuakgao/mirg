@@ -1,7 +1,6 @@
 import base64
 import io
 import os
-import sys
 import requests
 from PIL import Image, UnidentifiedImageError
 import faiss
@@ -10,12 +9,7 @@ from io import BytesIO
 import torch
 
 
-sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-)  # for importing paths
-
-
-def load_image(image: Union[str, Image.Image], to_bytes=False):
+def load_image(image: Union[str, Image.Image]):
     if isinstance(image, str):
         is_url = image.startswith(("http://", "https://"))
         if is_url:
@@ -34,18 +28,7 @@ def load_image(image: Union[str, Image.Image], to_bytes=False):
     else:
         raise ValueError("Input must be a file path or a PIL Image object")
 
-    if to_bytes:
-        # Create a BytesIO object
-        img_bytes = BytesIO()
-
-        # Save the PIL image to the BytesIO object in the desired format
-        image.save(img_bytes, format="JPEG")
-        image.close()
-
-        # Get the byte data from the BytesIO object
-        img_bytes.seek(0)  # Move to the beginning of the BytesIO object
-        image = img_bytes.getvalue()
-
+    image = image.copy()
     return image
 
 
@@ -100,7 +83,7 @@ def convert_image_to_base64(image: Image.Image):
     return base64_image
 
 
-def find_duplicate_images(images_dir: str, threshold=0.9):
+def find_duplicate_images(images_dir: str, threshold=0.95):
     from ml_models.clip import Clip
 
     clip = Clip()

@@ -4,5 +4,4 @@ __pycache__/
 # macOS system files
 .DS_Store
 
-# Sensitive information
-gemini_key.txt
+outputs/
