@@ -9,7 +9,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing paths
 from paths import ROOT_DIR
-from ml_models.gemini import Gemini
+from models.gemini import Gemini
 
 gemini = Gemini()
 

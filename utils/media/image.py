@@ -84,7 +84,7 @@ def convert_image_to_base64(image: Image.Image):
 
 
 def find_duplicate_images(images_dir: str, threshold=0.95):
-    from ml_models.clip import Clip
+    from models.clip import Clip
 
     clip = Clip()
 

@@ -59,5 +59,20 @@ class Gemini:
 
 if __name__ == "__main__":
     gemini = Gemini()
-    response = gemini.query(["How old is the sun"])
+    image1 = load_image(
+        "/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/images/start.png"
+    )
+    image2 = load_image(
+        "/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/images_other/image_4894597298081990202.png"
+    )
+    image3 = load_image(
+        "/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/images_other/concrete_bridge_with_green_railing_over_calm_water.png"
+    )
+    response = gemini.query(
+        [
+            image1,
+            image1,
+            "What has changed between these two images? Respond with 'na' if the images are not the same location. Output:",
+        ]
+    )
     print(response)

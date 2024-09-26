@@ -9,7 +9,7 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 from data.national_bridge_inventory.dataparser import Nbi
-from ml_models.gemini import Gemini
+from models.gemini import Gemini
 
 gemini = Gemini()
 
@@ -41,7 +41,7 @@ for image_name, data in images_metadata.items():
     image_data.append(data_str)
 
 past_report_data = ["Past Reports:"]
-past_reports_dir = f"data/public_inspection_reports/data/{structure_number}"
+past_reports_dir = ROOT_DIR + f"/data/public_inspection_reports/data/{structure_number}"
 for report_name in os.listdir(past_reports_dir):
     report_path = os.path.join(past_reports_dir, report_name)
     if not os.path.isdir(report_path):

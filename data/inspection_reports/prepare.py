@@ -8,8 +8,8 @@ import torch
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 )  # for importing utils
-from ml_models.clip import clip
-from ml_models.llava import llava
+from models.clip import clip
+from models.llava import llava
 from paths import ROOT_DIR
 from utils.media.pdf import convert_pdf_to_md
 from utils.logger import logger
@@ -19,7 +19,7 @@ process = psutil.Process()
 
 
 def check_if_downloads_exist():
-    required_file_paths = [os.path.join(ROOT_DIR, "ml_models/model_weights/dacl.pth")]
+    required_file_paths = [os.path.join(ROOT_DIR, "models/model_weights/dacl.pth")]
     non_empty_dirs = [
         os.path.join(ROOT_DIR, "data/inspection_reports/data"),
     ]

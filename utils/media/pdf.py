@@ -13,9 +13,8 @@ from utils.media.image import find_duplicate_images
 from paths import ROOT_DIR
 from utils.logger import logger
 
-# from ml_models.gemini import gemini
-from ml_models.llava import llava
-from ml_models.gemini import Gemini
+from models.llava import llava
+from models.gemini import Gemini
 
 gemini = Gemini()
 

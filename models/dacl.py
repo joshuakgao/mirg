@@ -37,7 +37,7 @@ class Dacl:
         self.classes, self.label2id, self.id2label = self._define_classes()
         self.transforms = self._define_transforms()
         self.device = device_selector(device, label="Dacl")
-        model_path = os.path.join(ROOT_DIR, "ml_models/model_weights/dacl.pth")
+        model_path = os.path.join(ROOT_DIR, "models/model_weights/dacl.pth")
         self.model = self._load_model(model_path)
 
     def _define_classes(self):

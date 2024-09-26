@@ -1,5 +1,5 @@
 import numpy as np
-from ml_models.clip import clip
+from models.clip import clip
 from PIL import Image
 from faiss import IndexFlatIP
 from typing import List

@@ -7,8 +7,7 @@ sys.path.append(
 )  # for importing paths
 from paths import ROOT_DIR
 
-# from ml_models.gemma2 import gemma2
-from ml_models.gemini import gemini
+from models.gemini import gemini
 
 
 print("Getting report images...")
