@@ -12,6 +12,7 @@ psutil
 torch
 faiss-cpu
 pandas
+accelerate
 
 # for hloc
 torch>=1.1
