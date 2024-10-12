@@ -82,6 +82,7 @@ class Hloc:
 
         # compare sfm model to images in image_dir
         matches = {}  # store matching images
+        logs = []
         for name in os.listdir(image_dir):
             try:
                 if not name.endswith(".png"):
@@ -125,15 +126,15 @@ class Hloc:
                         f'found {ret["num_inliers"]}/{len(ret["inliers"])} inlier correspondences.'
                     )
                     if len(ret["inliers"]) > min_inliers:
+                        logs.append(log)
                         matches[query] = len(ret["inliers"])
-
                 visualization.visualize_loc_from_log(images_dir, query, log, model)
             except:
                 continue
 
-        return matches
+        return matches, logs, model
 
-    def _generate_cropped_images(self, image: Union[Image.Image, str]):
+    def _generate_cropped_images(self, image: Union[Image.Image, str], n_crops=16):
         image = load_image(image)
         image.save(f"{self.cropped_images}/original.png")
 
@@ -168,11 +169,8 @@ class Hloc:
             return zoomed_image
 
         # Apply patterned zoom to the image multiple times
-        total_patterns = 9  # Define the number of patterns
-        for i in range(total_patterns):
-            zoomed_image = zoom_image(
-                image, pattern_index=i, total_patterns=total_patterns
-            )
+        for i in range(n_crops):
+            zoomed_image = zoom_image(image, pattern_index=i, total_patterns=n_crops)
             # Save the zoomed image
             zoomed_image.save(f"{self.cropped_images}/cropped_{i}.png")
 
@@ -187,28 +185,32 @@ if __name__ == "__main__":
 
     image_path = "/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/input/VT15-00020-CAMBRIDGE/images/concrete_bridge_underpass_waterway.png"
 
-    matches3 = hloc.is_same_location(
+    matches3, rets, logs = hloc.is_same_location(
         image=image_path,
         image_dir="/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/200030002008022/viewreport.ashx-3/images",
-        min_inliers=500,
+        min_inliers=20,
     )
+    print(len(logs))
+    print(logs[0])
+    print(len(logs[0]["keypoints_query"]))
+    print(len(logs[0]["PnP_ret"]["inliers"]))
 
-    matches4 = hloc.is_same_location(
-        image=image_path,
-        image_dir="/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/200030002008022/viewreport.ashx-5/images",
-        min_inliers=500,
-    )
+    # matches4 = hloc.is_same_location(
+    #     image=image_path,
+    #     image_dir="/home/jkgao/Documents/GitHub/mirg/data/public_inspection_reports/data/200030002008022/viewreport.ashx-5/images",
+    #     min_inliers=20,
+    # )
 
-    print("Report 3")
-    for k, v in matches3.items():
-        try:
-            print(f'{v}: {metadata[os.path.basename(k)]["report_caption"]}')
-        except:
-            continue
+    # print("Report 3")
+    # for k, v in matches3.items():
+    #     try:
+    #         print(f'{v}: {metadata[os.path.basename(k)]["report_caption"]}')
+    #     except:
+    #         continue
 
-    print("Report 5")
-    for k, v in matches4.items():
-        try:
-            print(f'{v}: {metadata[os.path.basename(k)]["report_caption"]}')
-        except:
-            continue
+    # print("Report 5")
+    # for k, v in matches4.items():
+    #     try:
+    #         print(f'{v}: {metadata[os.path.basename(k)]["report_caption"]}')
+    #     except:
+    #         continue

@@ -63,7 +63,6 @@ def plot_keypoints(kpts, colors="lime", ps=4):
     axes = plt.gcf().axes
     for a, k, c in zip(axes, kpts, colors):
         a.scatter(k[:, 0], k[:, 1], c=c, s=ps, linewidths=0)
-    # plt.savefig("output.png")
 
 
 def plot_matches(kpts0, kpts1, color=None, lw=1.5, ps=4, indices=(0, 1), a=1.0):

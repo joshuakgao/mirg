@@ -10,8 +10,10 @@ sys.path.append(
 from paths import ROOT_DIR
 from data.national_bridge_inventory.dataparser import Nbi
 from models.gemini import Gemini
+from models.hloc import Hloc
 
 gemini = Gemini()
+hloc = Hloc()
 
 structure_number = "200030002008022"
 print("Getting report images...")
