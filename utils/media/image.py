@@ -170,6 +170,40 @@ def find_duplicate_images(images_dir: str, threshold=0.95):
     return duplicate_groups
 
 
+def get_overlapping_crops(pil_image, num_crops, overlap):
+    # calculate stride based on num_crops and overlap
+    image_width, image_height = pil_image.size
+    num_crops_x, num_crops_y = num_crops
+
+    # Calculate the effective area covered by the crops minus the overlap
+    crop_width = image_width / (num_crops_x - overlap * (num_crops_x - 1))
+    crop_height = image_height / (num_crops_y - overlap * (num_crops_y - 1))
+
+    crop_width = int(crop_width)
+    crop_height = int(crop_height)
+
+    # Calculate the stride (step size between crops)
+    stride_x = crop_width * (1 - overlap)
+    stride_y = crop_height * (1 - overlap)
+
+    crops = []
+
+    # Iterate over the image based on the calculated strides
+    for i in range(num_crops_y):
+        for j in range(num_crops_x):
+            left = min(int(j * stride_x), image_width - crop_width)
+            top = min(int(i * stride_y), image_height - crop_height)
+
+            # Define the box for the crop: (left, top, right, bottom)
+            crop_box = (left, top, left + crop_width, top + crop_height)
+
+            # Crop the image and append to the list
+            crop = pil_image.crop(crop_box)
+            crops.append(crop)
+
+    return crops
+
+
 if __name__ == "__main__":
     url = "http://images.cocodataset.org/val2017/000000039769.jpg"
     image = load_image(url)
