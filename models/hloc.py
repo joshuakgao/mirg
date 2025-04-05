@@ -42,6 +42,7 @@ class Hloc:
         image: Union[Image.Image, str],
         image_dir: str,
         min_inliers: int = 100,
+        n_crops: int = 16,
     ):
         if os.path.isdir(self.outputs):
             shutil.rmtree(self.outputs)
@@ -50,7 +51,7 @@ class Hloc:
 
         # preprare images for sfm build
         images_dir = self.cropped_images
-        self._generate_cropped_images(image)
+        self._generate_cropped_images(image, n_crops=n_crops)
         references = [
             p.relative_to(images_dir).as_posix() for p in (images_dir).iterdir()
         ]
